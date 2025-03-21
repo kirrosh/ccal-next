@@ -6,18 +6,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { 
-      people_count, 
       goal, 
       preferences, 
       allergies, 
       region, 
       available_products,
-      user_profile // New field containing user profile data
+      user_profile // User profile data
     } = body;
 
     // Parameters for the LLM chain
     const chainParams: any = {
-      people_count,
       goal,
       preferences,
       allergies,
@@ -57,7 +55,7 @@ export async function POST(request: NextRequest) {
 
 Текущая цель пользователя: "${goal}"
 
-РАСПРЕДЕЛЕНИЕ КАЛОРИЙ ПО ПРИЕМАМ ПИЩИ (примерно):
+РАСПРЕДЕЛЕНИЕ КАЛОРИЙ ПО ПРИЕМАМ ПИЩИ (в среднем на день):
 - Завтрак: 25-30% дневной калорийности
 - Обед: 35-40% дневной калорийности
 - Ужин: 20-25% дневной калорийности

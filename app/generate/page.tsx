@@ -19,7 +19,6 @@ export default function GeneratePage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [calories, setCalories] = useState<number | null>(null);
   const [formData, setFormData] = useState({
-    people_count: 2,
     goal: 'weight_loss',
     preferences: '',
     allergies: '',
@@ -74,7 +73,6 @@ export default function GeneratePage() {
 
       // API request data
       const requestData: any = {
-        people_count: Number(formData.people_count),
         goal: formData.goal,
         preferences,
         allergies,
@@ -173,23 +171,6 @@ export default function GeneratePage() {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="people_count" className="block text-sm font-medium text-gray-700">
-                Количество человек
-              </label>
-              <select
-                id="people_count"
-                name="people_count"
-                value={formData.people_count}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
-              >
-                {[1, 2, 3, 4, 5, 6].map(num => (
-                  <option key={num} value={num}>{num}</option>
-                ))}
-              </select>
-            </div>
-            
             <div>
               <label htmlFor="goal" className="block text-sm font-medium text-gray-700">
                 Цель

@@ -1,7 +1,6 @@
 // Sample meal plan data based on the schema
 const sampleMealPlan = {
   userId: "user123",
-  peopleCount: 2,
   goal: "weight_loss",
   preferences: ["Средиземноморская кухня", "Низкокалорийные блюда"],
   allergies: ["Орехи", "Лактоза"],
@@ -52,6 +51,36 @@ const sampleMealPlan = {
           protein: 24,
           fats: 8,
           carbs: 15,
+        },
+      },
+      {
+        name: "Гранола с йогуртом",
+        dishType: "readymade",
+        ingredients: [
+          { name: "Гранола без орехов", amount: 40, unit: "г" },
+          { name: "Йогурт без лактозы", amount: 150, unit: "г" },
+          { name: "Банан", amount: 0.5, unit: "шт" },
+        ],
+        nutrients: {
+          calories: 230,
+          protein: 8,
+          fats: 5,
+          carbs: 40,
+        },
+      },
+      {
+        name: "Тост с авокадо и яйцом",
+        dishType: "readymade",
+        ingredients: [
+          { name: "Хлеб цельнозерновой", amount: 40, unit: "г" },
+          { name: "Авокадо", amount: 50, unit: "г" },
+          { name: "Яйцо", amount: 1, unit: "шт" },
+        ],
+        nutrients: {
+          calories: 240,
+          protein: 10,
+          fats: 15,
+          carbs: 20,
         },
       },
     ],
@@ -121,6 +150,22 @@ const sampleMealPlan = {
           carbs: 32,
         },
       },
+      {
+        name: "Суп-пюре из чечевицы",
+        dishType: "readymade",
+        ingredients: [
+          { name: "Чечевица", amount: 60, unit: "г" },
+          { name: "Лук", amount: 30, unit: "г" },
+          { name: "Морковь", amount: 30, unit: "г" },
+          { name: "Томатная паста", amount: 10, unit: "г" },
+        ],
+        nutrients: {
+          calories: 210,
+          protein: 12,
+          fats: 3,
+          carbs: 35,
+        },
+      },
     ],
     dinner: [
       {
@@ -173,7 +218,7 @@ const sampleMealPlan = {
       },
       {
         name: "Котлеты из индейки с пюре",
-        dishType: "homemade",
+        dishType: "readymade",
         ingredients: [
           { name: "Фарш из индейки", amount: 120, unit: "г" },
           { name: "Цветная капуста", amount: 150, unit: "г" },
@@ -185,6 +230,22 @@ const sampleMealPlan = {
           protein: 25,
           fats: 9,
           carbs: 14,
+        },
+      },
+      {
+        name: "Овощная лазанья",
+        dishType: "readymade",
+        ingredients: [
+          { name: "Лазанья (листы)", amount: 80, unit: "г" },
+          { name: "Шпинат", amount: 70, unit: "г" },
+          { name: "Томатный соус", amount: 50, unit: "г" },
+          { name: "Сыр без лактозы", amount: 30, unit: "г" },
+        ],
+        nutrients: {
+          calories: 280,
+          protein: 12,
+          fats: 8,
+          carbs: 40,
         },
       },
     ],
@@ -231,6 +292,37 @@ const sampleMealPlan = {
           protein: 2,
           fats: 0.5,
           carbs: 20,
+        },
+      },
+      {
+        name: "Хумус с овощами",
+        dishType: "readymade",
+        ingredients: [
+          { name: "Хумус", amount: 50, unit: "г" },
+          { name: "Морковь", amount: 50, unit: "г" },
+          { name: "Огурец", amount: 50, unit: "г" },
+        ],
+        nutrients: {
+          calories: 150,
+          protein: 5,
+          fats: 8,
+          carbs: 15,
+        },
+      },
+      {
+        name: "Фруктовый салат",
+        dishType: "readymade",
+        ingredients: [
+          { name: "Яблоко", amount: 0.5, unit: "шт" },
+          { name: "Груша", amount: 0.5, unit: "шт" },
+          { name: "Киви", amount: 1, unit: "шт" },
+          { name: "Апельсин", amount: 0.5, unit: "шт" },
+        ],
+        nutrients: {
+          calories: 140,
+          protein: 2,
+          fats: 0.5,
+          carbs: 30,
         },
       },
     ],

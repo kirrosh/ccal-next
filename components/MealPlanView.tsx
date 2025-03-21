@@ -37,9 +37,6 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
       <div className="mb-8 space-y-4">
         <div className="flex items-center gap-2">
           <h1 className="text-3xl font-bold">План питания</h1>
-          <Badge variant="outline" className="ml-2">
-            {mealPlan.peopleCount} {mealPlan.peopleCount === 1 ? 'человек' : 'человека'}
-          </Badge>
         </div>
         
         <div className="flex flex-wrap gap-2">
