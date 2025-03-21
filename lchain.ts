@@ -104,9 +104,12 @@ const prompt = PromptTemplate.fromTemplate(
 
 const structuredLlm = llm.withStructuredOutput(mealPlan);
 
-const chain = prompt.pipe(structuredLlm);
+export const chain = prompt.pipe(structuredLlm);
   
 
+// Example of using the chain
+// This can be commented out when used in the API
+/*
 const completion = await chain.invoke({
     "people_count": 2,
     "goal": "weight_loss",
@@ -118,3 +121,4 @@ const completion = await chain.invoke({
   });
 
 console.log(JSON.stringify(completion, null, 2));
+*/

@@ -32,7 +32,7 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="w-full">
       {/* Header with user info */}
       <div className="mb-8 space-y-4">
         <div className="flex items-center gap-2">
