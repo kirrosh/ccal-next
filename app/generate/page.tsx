@@ -1,12 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+// Interface for user profile
+interface UserProfile {
+  gender: 'male' | 'female';
+  age: number;
+  height: number;
+  weight: number;
+  activityLevel: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+}
 
 export default function GeneratePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [calories, setCalories] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     people_count: 2,
     goal: 'weight_loss',
@@ -15,6 +26,36 @@ export default function GeneratePage() {
     region: 'Россия',
     available_products: ''
   });
+
+  // Load user profile from localStorage on component mount
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      const profile = JSON.parse(savedProfile);
+      setUserProfile(profile);
+      
+      // Calculate calories using the Mifflin-St. Jeor formula
+      let bmr;
+      if (profile.gender === 'male') {
+        bmr = 10 * profile.weight + 6.25 * profile.height - 5 * profile.age + 5;
+      } else {
+        bmr = 10 * profile.weight + 6.25 * profile.height - 5 * profile.age - 161;
+      }
+      
+      // Activity level multipliers
+      const activityMultipliers: Record<string, number> = {
+        sedentary: 1.2,
+        light: 1.375,
+        moderate: 1.55,
+        active: 1.725,
+        very_active: 1.9,
+      };
+      
+      // Calculate TDEE (Total Daily Energy Expenditure)
+      const tdee = Math.round(bmr * activityMultipliers[profile.activityLevel]);
+      setCalories(tdee);
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -31,19 +72,30 @@ export default function GeneratePage() {
       const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
       const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
 
+      // API request data
+      const requestData: any = {
+        people_count: Number(formData.people_count),
+        goal: formData.goal,
+        preferences,
+        allergies,
+        region: formData.region,
+        available_products
+      };
+
+      // Add user profile data if available
+      if (userProfile && calories) {
+        requestData.user_profile = {
+          ...userProfile,
+          daily_calories: calories
+        };
+      }
+
       const response = await fetch('/api/generate-meal-plan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          people_count: Number(formData.people_count),
-          goal: formData.goal,
-          preferences,
-          allergies,
-          region: formData.region,
-          available_products
-        }),
+        body: JSON.stringify(requestData),
       });
 
       if (!response.ok) {
@@ -76,6 +128,14 @@ export default function GeneratePage() {
             <div className="flex items-center">
               <Link href="/" className="text-xl font-bold text-primary">CCAL</Link>
             </div>
+            <nav className="flex space-x-4">
+              <Link href="/generate" className="text-primary hover:text-primary-dark px-3 py-2 rounded-md text-sm font-medium">
+                Создать рацион
+              </Link>
+              <Link href="/profile" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
+                Мой профиль
+              </Link>
+            </nav>
           </div>
         </div>
       </header>
@@ -84,6 +144,33 @@ export default function GeneratePage() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
         <div className="bg-white shadow sm:rounded-lg p-6">
           <h1 className="text-2xl font-bold mb-6">Создать новый рацион питания</h1>
+          
+          {userProfile && calories && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h2 className="text-lg font-medium text-blue-800">Информация из профиля</h2>
+              <p className="text-sm text-blue-700">
+                Ваша суточная потребность: <span className="font-bold">{calories} ккал</span>
+              </p>
+              <p className="text-sm text-blue-700 mt-1">
+                Эта информация будет использована для создания оптимального рациона
+              </p>
+              <Link href="/profile" className="text-sm text-blue-600 hover:text-blue-800 underline mt-2 inline-block">
+                Изменить профиль
+              </Link>
+            </div>
+          )}
+          
+          {!userProfile && (
+            <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h2 className="text-lg font-medium text-yellow-800">Совет</h2>
+              <p className="text-sm text-yellow-700">
+                Для более точного расчета рациона, рекомендуем создать личный профиль
+              </p>
+              <Link href="/profile" className="text-sm text-yellow-600 hover:text-yellow-800 underline mt-2 inline-block">
+                Создать профиль
+              </Link>
+            </div>
+          )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>

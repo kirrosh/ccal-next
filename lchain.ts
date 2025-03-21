@@ -23,6 +23,7 @@ const prompt = PromptTemplate.fromTemplate(
 - region: {region} (используй продукты, доступные в этом регионе)
 - current_date: {current_date} (используй для определения сезона и сезонных продуктов)
 - available_products: {available_products} (постарайся максимально использовать продукты, которые уже есть)
+{user_profile_info}
 
 Требования к рациону:
 1. ОБЯЗАТЕЛЬНО составь МИНИМУМ 3 варианта завтраков

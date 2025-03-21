@@ -37,7 +37,13 @@ export default function Home() {
             <div className="flex items-center">
               <span className="text-xl font-bold text-primary">CCAL</span>
             </div>
-            <div>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/profile"
+                className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Мой профиль
+              </Link>
               <Link
                 href="/generate"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
