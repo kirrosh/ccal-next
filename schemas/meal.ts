@@ -13,6 +13,7 @@ const mealPlan = z.object({
         z.object({
           name: z.string().describe("Название завтрака на русском языке"),
           dishType: z.enum(["homemade", "readymade"]).describe("Тип блюда: приготовленное дома или готовое из кафе/кулинарии"),
+          servingSize: z.number().describe("Размер готовой порции в граммах"),
           ingredients: z.array(
             z.object({
               name: z.string().describe("Название ингредиента (например, 'куриное филе', 'овсяные хлопья')"),
@@ -32,6 +33,7 @@ const mealPlan = z.object({
         z.object({
           name: z.string().describe("Название обеда на русском языке"),
           dishType: z.enum(["homemade", "readymade"]).describe("Тип блюда: приготовленное дома или готовое из кафе/кулинарии"),
+          servingSize: z.number().describe("Размер готовой порции в граммах"),
           ingredients: z.array(
             z.object({
               name: z.string().describe("Название ингредиента (например, 'куриное филе', 'овсяные хлопья')"),
@@ -51,6 +53,7 @@ const mealPlan = z.object({
         z.object({
           name: z.string().describe("Название ужина на русском языке"),
           dishType: z.enum(["homemade", "readymade"]).describe("Тип блюда: приготовленное дома или готовое из кафе/кулинарии"),
+          servingSize: z.number().describe("Размер готовой порции в граммах"),
           ingredients: z.array(
             z.object({
               name: z.string().describe("Название ингредиента (например, 'куриное филе', 'овсяные хлопья')"),
@@ -70,6 +73,7 @@ const mealPlan = z.object({
         z.object({
           name: z.string().describe("Название перекуса на русском языке"),
           dishType: z.enum(["homemade", "readymade"]).describe("Тип блюда: приготовленное дома или готовое из кафе/кулинарии"),
+          servingSize: z.number().describe("Размер готовой порции в граммах"),
           ingredients: z.array(
             z.object({
               name: z.string().describe("Название ингредиента (например, 'куриное филе', 'овсяные хлопья')"),

@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== Получен запрос на генерацию плана питания ===');
+    
     const body = await request.json();
     const { 
       goal, 
@@ -14,6 +16,11 @@ export async function POST(request: NextRequest) {
       user_profile // User profile data
     } = body;
 
+    console.log(`Цель: ${goal}`);
+    console.log(`Предпочтения: ${preferences?.join(', ')}`);
+    console.log(`Аллергии: ${allergies?.join(', ')}`);
+    console.log(`Регион: ${region}`);
+    
     // Parameters for the LLM chain
     const chainParams: any = {
       goal,
@@ -27,6 +34,14 @@ export async function POST(request: NextRequest) {
 
     // Add user profile data if available
     if (user_profile) {
+      console.log('=== Данные профиля пользователя ===');
+      console.log(`Пол: ${user_profile.gender}`);
+      console.log(`Возраст: ${user_profile.age}`);
+      console.log(`Рост: ${user_profile.height} см`);
+      console.log(`Вес: ${user_profile.weight} кг`);
+      console.log(`Уровень активности: ${user_profile.activityLevel}`);
+      console.log(`Суточная потребность в калориях: ${user_profile.daily_calories} ккал`);
+      
       // Format user profile information for the prompt
       const gender = user_profile.gender === 'male' ? 'мужской' : 'женский';
       const activityLabels: Record<string, string> = {
@@ -37,43 +52,53 @@ export async function POST(request: NextRequest) {
         very_active: 'очень высокая активность'
       };
 
-          // Calculate target calories based on goal
-    let targetCalories = user_profile.daily_calories; // Default: maintenance
-    let goalDescription = '';
-    
-    if (goal === 'weight_loss') {
-      targetCalories = Math.round(user_profile.daily_calories * 0.85);
-      goalDescription = 'Похудение (-15% от суточной потребности)';
-    } else if (goal === 'muscle_gain') {
-      targetCalories = Math.round(user_profile.daily_calories * 1.15);
-      goalDescription = 'Набор массы (+15% от суточной потребности)';
-    } else if (goal === 'maintenance') {
-      goalDescription = 'Поддержание формы (равно суточной потребности)';
-    }
-          // Calculate meal-specific calories
-    const breakfastMin = Math.round(targetCalories * 0.25);
-    const breakfastMax = Math.round(targetCalories * 0.30);
-    
-    const lunchMin = Math.round(targetCalories * 0.35);
-    const lunchMax = Math.round(targetCalories * 0.40);
-    
-    const dinnerMin = Math.round(targetCalories * 0.20);
-    const dinnerMax = Math.round(targetCalories * 0.25);
-    
-    const snacksMin = Math.round(targetCalories * 0.10);
-    const snacksMax = Math.round(targetCalories * 0.15);
-    chainParams.target_daily_calories = {
-      targetCalories,
-      breakfastMin,
-      breakfastMax,
-      lunchMin,
-      lunchMax,
-      dinnerMin,
-      dinnerMax,
-      snacksMin,
-      snacksMax
-    }
+      // Calculate target calories based on goal
+      let targetCalories = user_profile.daily_calories; // Default: maintenance
+      let goalDescription = '';
       
+      if (goal === 'weight_loss') {
+        targetCalories = Math.round(user_profile.daily_calories * 0.85);
+        goalDescription = 'Похудение (-15% от суточной потребности)';
+      } else if (goal === 'muscle_gain') {
+        targetCalories = Math.round(user_profile.daily_calories * 1.15);
+        goalDescription = 'Набор массы (+15% от суточной потребности)';
+      } else if (goal === 'maintenance') {
+        goalDescription = 'Поддержание формы (равно суточной потребности)';
+      }
+      
+      console.log(`Целевая калорийность для ${goalDescription}: ${targetCalories} ккал`);
+      
+      // Calculate meal-specific calories
+      const breakfastMin = Math.round(targetCalories * 0.25);
+      const breakfastMax = Math.round(targetCalories * 0.30);
+      
+      const lunchMin = Math.round(targetCalories * 0.35);
+      const lunchMax = Math.round(targetCalories * 0.40);
+      
+      const dinnerMin = Math.round(targetCalories * 0.20);
+      const dinnerMax = Math.round(targetCalories * 0.25);
+      
+      const snacksMin = Math.round(targetCalories * 0.10);
+      const snacksMax = Math.round(targetCalories * 0.15);
+      
+      chainParams.target_daily_calories = {
+        targetCalories,
+        breakfastMin,
+        breakfastMax,
+        lunchMin,
+        lunchMax,
+        dinnerMin,
+        dinnerMax,
+        snacksMin,
+        snacksMax
+      }
+      
+      console.log('=== Распределение калорий по приемам пищи ===');
+      console.log(`Завтрак: ${breakfastMin}-${breakfastMax} ккал`);
+      console.log(`Обед: ${lunchMin}-${lunchMax} ккал`);
+      console.log(`Ужин: ${dinnerMin}-${dinnerMax} ккал`);
+      console.log(`Перекусы: ${snacksMin}-${snacksMax} ккал`);
+        
       // Create a formatted string with user profile information
       chainParams.user_profile_info = `
 - user_profile: Информация о пользователе:
@@ -110,7 +135,13 @@ export async function POST(request: NextRequest) {
 `;
     }
 
-    const mealPlan = await generateMealPlan(chainParams)
+    console.log('=== Запуск генерации плана питания ===');
+    const startTime = Date.now();
+    
+    const mealPlan = await generateMealPlan(chainParams);
+
+    const endTime = Date.now();
+    console.log(`=== План питания сгенерирован за ${(endTime - startTime) / 1000} секунд ===`);
 
     const mealPlanWithId = {
       id: uuidv4(),
