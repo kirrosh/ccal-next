@@ -60,6 +60,26 @@ export default function WeeklyPlanPage() {
     }
   }, [params.id]);
 
+  const handleDeleteWeeklyPlan = () => {
+    if (weeklyPlan && confirm('Вы уверены, что хотите удалить этот план на неделю?')) {
+      try {
+        // Remove weekly plan
+        const savedWeeklyPlans = JSON.parse(localStorage.getItem('weeklyPlans') || '[]');
+        const updatedWeeklyPlans = savedWeeklyPlans.filter(
+          (plan: WeeklyPlan) => plan.id !== weeklyPlan.id
+        );
+        localStorage.setItem('weeklyPlans', JSON.stringify(updatedWeeklyPlans));
+        
+        // Redirect to home page
+        router.push('/');
+        alert('План на неделю успешно удален');
+      } catch (error) {
+        console.error('Error deleting weekly plan:', error);
+        alert('Ошибка при удалении плана на неделю');
+      }
+    }
+  };
+
   const handleSaveWeeklyPlan = (plan: WeeklyPlan) => {
     try {
       // Save to localStorage
@@ -139,6 +159,16 @@ export default function WeeklyPlanPage() {
               <p className="text-gray-600">
                 На основе рациона от: {new Date(mealPlan.createdAt).toLocaleString()}
               </p>
+              {weeklyPlan && (
+                <div className="mt-4">
+                  <button
+                    onClick={handleDeleteWeeklyPlan}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Удалить план на неделю
+                  </button>
+                </div>
+              )}
             </div>
             
             <WeeklyPlanView 

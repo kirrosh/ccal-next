@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MealPlanView from '@/components/MealPlanView';
 
@@ -14,6 +14,7 @@ interface MealPlan {
 
 export default function MealPlanPage() {
   const params = useParams();
+  const router = useRouter();
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,6 +39,31 @@ export default function MealPlanPage() {
       setLoading(false);
     }
   }, [params.id]);
+
+  const handleDelete = () => {
+    if (mealPlan && confirm('Вы уверены, что хотите удалить этот рацион?')) {
+      try {
+        // Remove from meal plans
+        const savedPlans = JSON.parse(localStorage.getItem('mealPlans') || '[]');
+        const updatedPlans = savedPlans.filter((plan: any) => plan.id !== mealPlan.id);
+        localStorage.setItem('mealPlans', JSON.stringify(updatedPlans));
+        
+        // Also remove any weekly plans based on this meal plan
+        const savedWeeklyPlans = JSON.parse(localStorage.getItem('weeklyPlans') || '[]');
+        const updatedWeeklyPlans = savedWeeklyPlans.filter(
+          (plan: any) => plan.mealPlanId !== mealPlan.id
+        );
+        localStorage.setItem('weeklyPlans', JSON.stringify(updatedWeeklyPlans));
+        
+        // Redirect to home page
+        router.push('/');
+        // alert('Рацион успешно удален');
+      } catch (error) {
+        console.error('Error deleting meal plan:', error);
+        alert('Ошибка при удалении рациона');
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -86,7 +112,13 @@ export default function MealPlanPage() {
                     Создан: {new Date(mealPlan.createdAt).toLocaleString()}
                   </p>
                 </div>
-                <div className="mt-4 sm:mt-0">
+                <div className="mt-4 sm:mt-0 flex space-x-3">
+                  <button
+                    onClick={handleDelete}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  >
+                    Удалить рацион
+                  </button>
                   <Link 
                     href={`/weekly-plan/${mealPlan.id}`}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
