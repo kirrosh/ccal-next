@@ -79,10 +79,22 @@ export default function MealPlanPage() {
         ) : mealPlan && (
           <>
             <div className="bg-white shadow sm:rounded-lg p-6 mb-8">
-              <h1 className="text-2xl font-bold mb-3">Рацион питания</h1>
-              <p className="text-gray-600">
-                Создан: {new Date(mealPlan.createdAt).toLocaleString()}
-              </p>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                <div>
+                  <h1 className="text-2xl font-bold mb-3">Рацион питания</h1>
+                  <p className="text-gray-600">
+                    Создан: {new Date(mealPlan.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <div className="mt-4 sm:mt-0">
+                  <Link 
+                    href={`/weekly-plan/${mealPlan.id}`}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  >
+                    Составить план на неделю
+                  </Link>
+                </div>
+              </div>
             </div>
             
             <MealPlanView mealPlan={mealPlan} />
@@ -94,7 +106,7 @@ export default function MealPlanPage() {
       <footer className="bg-white border-t border-gray-200 mt-auto">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-center text-sm text-gray-500">
-            <p>© 2023 CCAL. Все права защищены.</p>
+            <p>© 2025 CCAL. Все права защищены.</p>
           </div>
         </div>
       </footer>
