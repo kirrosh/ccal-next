@@ -28,13 +28,15 @@ interface MealCardProps {
   dishType: "homemade" | "readymade";
   ingredients: Ingredient[];
   nutrients: Nutrients;
+  servingSize: number;
 }
 
 const MealCard: React.FC<MealCardProps> = ({
   name,
   dishType,
   ingredients,
-  nutrients
+  nutrients,
+  servingSize
 }) => {
   return (
     <Card className="w-full h-full flex flex-col overflow-hidden transition-all hover:shadow-md">
@@ -46,7 +48,7 @@ const MealCard: React.FC<MealCardProps> = ({
           </Badge>
         </div>
         <CardDescription>
-          {ingredients.length} ингредиентов • {nutrients.calories} ккал
+          {ingredients.length} ингредиентов • {nutrients.calories} ккал • Порция: {servingSize} г
         </CardDescription>
       </CardHeader>
       

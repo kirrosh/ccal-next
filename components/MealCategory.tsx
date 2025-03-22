@@ -17,6 +17,7 @@ interface Nutrients {
 interface Meal {
   name: string;
   dishType: "homemade" | "readymade";
+  servingSize: number;
   ingredients: Ingredient[];
   nutrients: Nutrients;
 }
@@ -47,6 +48,7 @@ const MealCategory: React.FC<MealCategoryProps> = ({
             dishType={meal.dishType}
             ingredients={meal.ingredients}
             nutrients={meal.nutrients}
+            servingSize={meal.servingSize}
           />
         ))}
       </div>

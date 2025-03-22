@@ -41,6 +41,7 @@ interface Meal {
   dishType: "homemade" | "readymade";
   ingredients: Ingredient[];
   nutrients: Nutrients;
+  servingSize: number;
 }
 
 interface DailyMeals {
@@ -238,10 +239,10 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                         dishType={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].dishType}
                         ingredients={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].ingredients}
                         nutrients={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].nutrients}
+                        servingSize={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].servingSize}
                       />
                     </div>
                   )}
-                  
                   {mealType !== 'snack' && <Separator className="my-8" />}
                 </div>
               ))}
