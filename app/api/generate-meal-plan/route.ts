@@ -1,4 +1,4 @@
-import { chain } from '@/lchain';
+import { generateMealPlan } from '@/lchain';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -36,6 +36,43 @@ export async function POST(request: NextRequest) {
         active: 'высокая активность (6-7 раз в неделю)',
         very_active: 'очень высокая активность'
       };
+
+          // Calculate target calories based on goal
+    let targetCalories = user_profile.daily_calories; // Default: maintenance
+    let goalDescription = '';
+    
+    if (goal === 'weight_loss') {
+      targetCalories = Math.round(user_profile.daily_calories * 0.85);
+      goalDescription = 'Похудение (-15% от суточной потребности)';
+    } else if (goal === 'muscle_gain') {
+      targetCalories = Math.round(user_profile.daily_calories * 1.15);
+      goalDescription = 'Набор массы (+15% от суточной потребности)';
+    } else if (goal === 'maintenance') {
+      goalDescription = 'Поддержание формы (равно суточной потребности)';
+    }
+          // Calculate meal-specific calories
+    const breakfastMin = Math.round(targetCalories * 0.25);
+    const breakfastMax = Math.round(targetCalories * 0.30);
+    
+    const lunchMin = Math.round(targetCalories * 0.35);
+    const lunchMax = Math.round(targetCalories * 0.40);
+    
+    const dinnerMin = Math.round(targetCalories * 0.20);
+    const dinnerMax = Math.round(targetCalories * 0.25);
+    
+    const snacksMin = Math.round(targetCalories * 0.10);
+    const snacksMax = Math.round(targetCalories * 0.15);
+    chainParams.target_daily_calories = {
+      targetCalories,
+      breakfastMin,
+      breakfastMax,
+      lunchMin,
+      lunchMax,
+      dinnerMin,
+      dinnerMax,
+      snacksMin,
+      snacksMax
+    }
       
       // Create a formatted string with user profile information
       chainParams.user_profile_info = `
@@ -47,25 +84,33 @@ export async function POST(request: NextRequest) {
   * Уровень активности: ${activityLabels[user_profile.activityLevel] || user_profile.activityLevel}
   * Суточная потребность в калориях: ${user_profile.daily_calories} ккал
 
-ВАЖНО О КАЛОРИЙНОСТИ РАЦИОНА:
-При составлении рациона используй следующие правила для суточной калорийности:
-- Если цель "weight_loss" (похудение): ${Math.round(user_profile.daily_calories * 0.85)} ккал в день (-15% от суточной потребности)
-- Если цель "muscle_gain" (набор массы): ${Math.round(user_profile.daily_calories * 1.15)} ккал в день (+15% от суточной потребности)
-- Если цель "maintenance" (поддержание формы): ${user_profile.daily_calories} ккал в день (равно суточной потребности)
+КАЛОРИЙНОСТЬ РАЦИОНА ДЛЯ ТЕКУЩЕЙ ЦЕЛИ ПОЛЬЗОВАТЕЛЯ:
 
-Текущая цель пользователя: "${goal}"
+Суточная калорийность для достижения цели: ${targetCalories} ккал
 
-РАСПРЕДЕЛЕНИЕ КАЛОРИЙ ПО ПРИЕМАМ ПИЩИ (в среднем на день):
-- Завтрак: 25-30% дневной калорийности
-- Обед: 35-40% дневной калорийности
-- Ужин: 20-25% дневной калорийности
-- Перекусы: 10-15% дневной калорийности
+РАСПРЕДЕЛЕНИЕ КАЛОРИЙ ПО ПРИЕМАМ ПИЩИ:
+- Завтрак: ${breakfastMin}-${breakfastMax} ккал 
+- Обед: ${lunchMin}-${lunchMax} ккал 
+- Ужин: ${dinnerMin}-${dinnerMax} ккал
+- Перекусы: ${snacksMin}-${snacksMax} ккал 
+Текущая цель: "${goalDescription}
+
+УЧИТЫВАЙ УКАЗАННУЮ КАЛОРИЙНОСТЬ ПРИ СОСТАВЛЕНИИ РАЦИОНА:
+1. Старайся, чтобы общая калорийность дневного рациона соответствовала целевому значению в ${
+  goal === 'weight_loss' 
+    ? Math.round(user_profile.daily_calories * 0.85) 
+    : goal === 'muscle_gain' 
+      ? Math.round(user_profile.daily_calories * 1.15) 
+      : user_profile.daily_calories
+} ккал.
+2. Для каждого блюда указывай его калорийность и старайся, чтобы суммарно приемы пищи соответствовали указанным диапазонам.
+3. Выбирай продукты и способы приготовления, подходящие для цели "${goal}".
 
 Обязательно учитывай эти данные при составлении блюд и их калорийности!
 `;
     }
 
-    const mealPlan = await chain.invoke(chainParams);
+    const mealPlan = await generateMealPlan(chainParams)
 
     const mealPlanWithId = {
       id: uuidv4(),
