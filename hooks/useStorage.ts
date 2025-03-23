@@ -1,16 +1,15 @@
 import { UserProfile, MealPlan, WeeklyPlan } from '@/types';
+import { api } from '@/trpc/react';
 
-type StorageKey = 'userProfile' | 'mealPlans' | 'weeklyPlans';
+type StorageKey = 'userProfile' | 'weeklyPlans';
 
 interface StorageData {
   userProfile: UserProfile | null;
-  mealPlans: MealPlan[];
   weeklyPlans: WeeklyPlan[];
 }
 
 const defaultValues: StorageData = {
   userProfile: null,
-  mealPlans: [],
   weeklyPlans: [],
 };
 
@@ -43,6 +42,8 @@ const setStorageData = <K extends keyof StorageData>(
 };
 
 export const useStorage = () => {
+  const saveMealPlanMutation = api.meal.saveMealPlan.useMutation();
+
   // User Profile Methods
   const getUserProfile = (): UserProfile | null => {
     return getStorageData('userProfile');
@@ -53,44 +54,14 @@ export const useStorage = () => {
   };
 
   // Meal Plan Methods
-  const getMealPlans = (): MealPlan[] => {
-    return getStorageData('mealPlans');
-  };
-
-  const setMealPlans = (plans: MealPlan[]) => {
-    setStorageData('mealPlans', plans);
-  };
-
-  const addMealPlan = (plan: MealPlan) => {
-    const plans = getMealPlans();
-    setMealPlans([...plans, plan]);
-  };
-
-  const getMealPlanById = (id: string): MealPlan | undefined => {
-    const plans = getMealPlans();
-    return plans.find(plan => plan.id === id);
-  };
-
-  const deleteMealPlan = (id: string) => {
-    const plans = getMealPlans();
-    const updatedPlans = plans.filter(plan => plan.id !== id);
-    setMealPlans(updatedPlans);
-    
-    // Also remove associated weekly plans
-    const weeklyPlans = getWeeklyPlans();
-    const updatedWeeklyPlans = weeklyPlans.filter(plan => plan.mealPlanId !== id);
-    setWeeklyPlans(updatedWeeklyPlans);
-  };
-
-  const updateMealPlan = (planId: string, updatedPlan: MealPlan) => {
-    console.log('Updating meal plan:', { planId, updatedPlan });
-    const plans = getMealPlans();
-    console.log('Current meal plans:', plans);
-    const updatedPlans = plans.map(plan => 
-      plan.id === planId ? updatedPlan : plan
-    );
-    console.log('Updated meal plans:', updatedPlans);
-    setMealPlans(updatedPlans);
+  const addMealPlan = async (plan: MealPlan) => {
+    try {
+      await saveMealPlanMutation.mutateAsync(plan);
+      console.log('Meal plan saved to MongoDB:', plan);
+    } catch (error) {
+      console.error('Error saving meal plan to MongoDB:', error);
+      throw error;
+    }
   };
 
   // Weekly Plan Methods
@@ -134,18 +105,13 @@ export const useStorage = () => {
   return {
     // Data getters
     getUserProfile,
-    getMealPlans,
     getWeeklyPlans,
 
     // User Profile Methods
     setUserProfile,
     
     // Meal Plan Methods
-    setMealPlans,
     addMealPlan,
-    getMealPlanById,
-    deleteMealPlan,
-    updateMealPlan,
     
     // Weekly Plan Methods
     setWeeklyPlans,

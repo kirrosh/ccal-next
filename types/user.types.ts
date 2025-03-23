@@ -6,7 +6,7 @@ export type ActivityLevel = "sedentary" | "light" | "moderate" | "active" | "ver
 
 // Интерфейс профиля пользователя
 export interface UserProfile {
-  id?: string;
+  id: string;
   gender: Gender;
   age: number;
   height: number; // в см

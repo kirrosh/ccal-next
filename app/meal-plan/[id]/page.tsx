@@ -10,36 +10,18 @@ import { MealPlan } from '@/types';
 export default function MealPlanPage() {
   const params = useParams();
   const router = useRouter();
-  const { getMealPlanById, deleteMealPlan } = useStorage();
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const id = params.id as string;
 
-  useEffect(() => {
-    const id = params.id as string;
-    
-    // Retrieve from storage
-    try {
-      const foundPlan = getMealPlanById(id);
-      
-      if (foundPlan) {
-        setMealPlan(foundPlan);
-      } else {
-        setError('Рацион не найден');
-      }
-    } catch (err) {
-      console.error('Error loading meal plan:', err);
-      setError('Ошибка при загрузке рациона');
-    } finally {
-      setLoading(false);
-    }
-  }, [params.id]);
+
 
   const handleDelete = () => {
     if (mealPlan && confirm('Вы уверены, что хотите удалить этот рацион?')) {
       try {
-        deleteMealPlan(mealPlan.id);
-        router.push('/');
+        // deleteMealPlan(mealPlan.id);
+        // router.push('/');
       } catch (error) {
         console.error('Error deleting meal plan:', error);
         alert('Ошибка при удалении рациона');

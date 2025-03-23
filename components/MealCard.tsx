@@ -31,42 +31,42 @@ const MealCard: React.FC<MealCardProps> = ({
 }) => {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
-  const { getUserProfile, getMealPlanById, updateMealPlan, getWeeklyPlanByMealPlanId, updateWeeklyPlan } = useStorage();
-  
-  const regenerateMealMutation = api.meal.regenerateMeal.useMutation({
-    onSuccess: (newMeal: Meal) => {
-      console.log('Regenerate meal success:', newMeal);
-      
-      // Update meal plan in storage
-      const mealPlan = getMealPlanById(mealPlanId);
-      console.log('Current meal plan:', mealPlan);
-      
-      if (mealPlan) {
-        const updatedMealPlan = {
-          ...mealPlan,
-          menu: {
-            ...mealPlan.menu,
-            [mealType]: mealPlan.menu[mealType].map(m => 
-              m.name === meal.name ? newMeal : m
-            )
-          }
-        };
-        console.log('Updating meal plan with:', updatedMealPlan);
-        updateMealPlan(mealPlanId, updatedMealPlan);
-        
-        // Verify the update
-        const updatedPlan = getMealPlanById(mealPlanId);
-        console.log('Verified updated meal plan:', updatedPlan);
-      } else {
-        console.error('Meal plan not found:', mealPlanId);
-      }
+  const { getUserProfile } = useStorage();
 
-      onMealUpdated?.(newMeal);
-      toast({
-        title: "Блюдо обновлено",
-        description: `Новое блюдо: ${newMeal.name}`,
-      });
-    },
+  const regenerateMealMutation = api.meal.regenerateMeal.useMutation({
+    // onSuccess: (newMeal: Meal) => {
+    //   console.log('Regenerate meal success:', newMeal);
+      
+    //   // Update meal plan in storage
+    //   const mealPlan = getMealPlanById(mealPlanId);
+    //   console.log('Current meal plan:', mealPlan);
+      
+    //   if (mealPlan) {
+    //     const updatedMealPlan = {
+    //       ...mealPlan,
+    //       menu: {
+    //         ...mealPlan.menu,
+    //         [mealType]: mealPlan.menu[mealType].map(m => 
+    //           m.name === meal.name ? newMeal : m
+    //         )
+    //       }
+    //     };
+    //     console.log('Updating meal plan with:', updatedMealPlan);
+    //     updateMealPlan(mealPlanId, updatedMealPlan);
+        
+    //     // Verify the update
+    //     const updatedPlan = getMealPlanById(mealPlanId);
+    //     console.log('Verified updated meal plan:', updatedPlan);
+    //   } else {
+    //     console.error('Meal plan not found:', mealPlanId);
+    //   }
+
+    //   onMealUpdated?.(newMeal);
+    //   toast({
+    //     title: "Блюдо обновлено",
+    //     description: `Новое блюдо: ${newMeal.name}`,
+    //   });
+    // },
     onError: (error) => {
       console.error('Regenerate meal error:', error);
       toast({

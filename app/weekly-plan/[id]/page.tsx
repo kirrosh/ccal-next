@@ -11,7 +11,6 @@ export default function WeeklyPlanPage() {
   const params = useParams();
   const router = useRouter();
   const { 
-    getMealPlanById, 
     getWeeklyPlanByMealPlanId, 
     deleteWeeklyPlan,
     addWeeklyPlan,
@@ -22,30 +21,30 @@ export default function WeeklyPlanPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const id = params.id as string;
+  // useEffect(() => {
+  //   const id = params.id as string;
     
-    try {
-      const foundPlan = getMealPlanById(id);
+  //   try {
+  //     const foundPlan = getMealPlanById(id);
       
-      if (foundPlan) {
-        setMealPlan(foundPlan);
+  //     if (foundPlan) {
+  //       setMealPlan(foundPlan);
         
-        // Check if there's a weekly plan based on this meal plan
-        const foundWeeklyPlan = getWeeklyPlanByMealPlanId(id);
-        if (foundWeeklyPlan) {
-          setWeeklyPlan(foundWeeklyPlan);
-        }
-      } else {
-        setError('Рацион не найден');
-      }
-    } catch (err) {
-      console.error('Error loading meal plan:', err);
-      setError('Ошибка при загрузке рациона');
-    } finally {
-      setLoading(false);
-    }
-  }, [params.id]);
+  //       // Check if there's a weekly plan based on this meal plan
+  //       const foundWeeklyPlan = getWeeklyPlanByMealPlanId(id);
+  //       if (foundWeeklyPlan) {
+  //         setWeeklyPlan(foundWeeklyPlan);
+  //       }
+  //     } else {
+  //       setError('Рацион не найден');
+  //     }
+  //   } catch (err) {
+  //     console.error('Error loading meal plan:', err);
+  //     setError('Ошибка при загрузке рациона');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [params.id]);
 
   const handleDeleteWeeklyPlan = () => {
     if (!weeklyPlan) return;

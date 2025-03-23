@@ -4,21 +4,25 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MealPlan } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
+import { api } from '@/trpc/react';
 
 export default function Home() {
-  const { getMealPlans, deleteMealPlan } = useStorage();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(false);
   }, []);
 
-  const mealPlans = getMealPlans();
+  const { data: mealPlans = [], isLoading: isLoadingMealPlans } = api.meal.getMealPlans.useQuery(
+    { userId: '66e977777777777777777777' },
+  );
 
-  const handleDeleteMealPlan = (id: string) => {
+  const deleteMealPlanMutation = api.meal.deleteMealPlan.useMutation();
+
+  const handleDeleteMealPlan = async (id: string) => {
     if (confirm('Вы уверены, что хотите удалить этот рацион?')) {
       try {
-        deleteMealPlan(id);
+        await deleteMealPlanMutation.mutateAsync({ id });
         alert('Рацион успешно удален');
       } catch (error) {
         console.error('Error deleting meal plan:', error);
@@ -63,7 +67,7 @@ export default function Home() {
           </Link>
         </div>
 
-        {loading ? (
+        {loading || isLoadingMealPlans ? (
           <div className="flex justify-center items-center h-32">
             <p className="text-gray-600">Загрузка...</p>
           </div>
@@ -73,12 +77,12 @@ export default function Home() {
               <div>
                 <h2 className="text-xl font-semibold mb-6">Ваши рационы</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {mealPlans.map((plan) => (
+                  {mealPlans.map((plan: MealPlan) => (
                     <div key={plan.id} className="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col h-full">
                       <div className="flex justify-between items-start">
                         <h3 className="text-lg font-medium mb-2">Рацион питания</h3>
                         <button 
-                          onClick={() => handleDeleteMealPlan(plan.id || '')}
+                          onClick={() => handleDeleteMealPlan(plan.id)}
                           className="text-red-500 hover:text-red-700 focus:outline-none" 
                           aria-label="Удалить рацион"
                         >

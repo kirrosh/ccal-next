@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { generateMealPlan, regenerateMeal } from '../../services/langchain';
+import { MealPlan } from '../db/models/MealPlan';
+import { TRPCError } from '@trpc/server';
 
 const targetDailyCaloriesSchema = z.object({
   breakfastMin: z.number(),
@@ -21,6 +23,44 @@ const userProfileSchema = z.object({
   activityLevel: z.enum(['sedentary', 'light', 'moderate', 'active', 'very_active']),
   daily_calories: z.number().optional(),
   target_daily_calories: targetDailyCaloriesSchema.optional()
+});
+
+const nutrientsSchema = z.object({
+  calories: z.number(),
+  protein: z.number(),
+  fats: z.number(),
+  carbs: z.number(),
+});
+
+const ingredientSchema = z.object({
+  name: z.string(),
+  amount: z.number(),
+  unit: z.string(),
+});
+
+const mealSchema = z.object({
+  name: z.string(),
+  dishType: z.enum(['homemade', 'readymade']),
+  ingredients: z.array(ingredientSchema),
+  nutrients: nutrientsSchema,
+  servingSize: z.number(),
+});
+
+const dailyMenuSchema = z.object({
+  breakfast: z.array(mealSchema),
+  lunch: z.array(mealSchema),
+  dinner: z.array(mealSchema),
+  snacks: z.array(mealSchema),
+});
+
+const mealPlanInputSchema = z.object({
+  userId: z.string(),
+  goal: z.enum(['weight_loss', 'muscle_gain', 'maintenance']),
+  preferences: z.array(z.string()),
+  allergies: z.array(z.string()),
+  availableProducts: z.array(z.string()),
+  currentDate: z.string(),
+  menu: dailyMenuSchema,
 });
 
 export const mealRouter = router({
@@ -103,7 +143,73 @@ export const mealRouter = router({
 
       const newMeal = await regenerateMeal(params);
       return newMeal;
-    })
+    }),
+
+  saveMealPlan: publicProcedure
+    .input(mealPlanInputSchema)
+    .mutation(async ({ input }) => {
+      try {
+        const mealPlan = await MealPlan.create(input);
+        console.log('Meal plan saved successfully:', mealPlan);
+        return mealPlan;
+      } catch (error) {
+        console.error('Error saving meal plan:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to save meal plan',
+          cause: error,
+        });
+      }
+    }),
+
+  getMealPlans: publicProcedure
+    .input(z.object({
+      userId: z.string(),
+    }))
+    .query(async ({ input }) => {
+      try {
+        const mealPlans = await MealPlan.find()
+          .sort({ createdAt: -1 })
+          .exec();
+        console.log('Retrieved meal plans:', mealPlans);
+        return mealPlans;
+      } catch (error) {
+        console.error('Error fetching meal plans:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch meal plans',
+          cause: error,
+        });
+      }
+    }),
+
+  deleteMealPlan: publicProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      try {
+        const deletedPlan = await MealPlan.findByIdAndDelete(input.id);
+        if (!deletedPlan) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Meal plan not found',
+          });
+        }
+        console.log('Meal plan deleted successfully:', deletedPlan);
+        return deletedPlan;
+      } catch (error) {
+        console.error('Error deleting meal plan:', error);
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete meal plan',
+          cause: error,
+        });
+      }
+    }),
 });
 
 // Helper function to format user profile info
