@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Базовые типы
 export type DishType = "homemade" | "readymade";
-export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+export type MealType = "breakfast" | "lunch" | "dinner" | "snacks";
 export type Goal = "weight_loss" | "muscle_gain" | "maintenance";
 
 // Типы для ингредиентов и нутриентов
@@ -33,7 +33,7 @@ export interface DailyMenu {
   breakfast: Meal[];
   lunch: Meal[];
   dinner: Meal[];
-  snack: Meal[];
+  snacks: Meal[];
 }
 
 // Тип для плана питания
@@ -84,6 +84,6 @@ export const mealPlanSchema = z.object({
     breakfast: z.array(mealSchema).length(5).describe("Список из 5 завтраков на неделю"),
     lunch: z.array(mealSchema).length(5).describe("Список из 5 обедов на неделю"),
     dinner: z.array(mealSchema).length(5).describe("Список из 5 ужинов на неделю"),
-    snack: z.array(mealSchema).length(5).describe("Список из 5 перекусов на неделю"),
+    snacks: z.array(mealSchema).length(5).describe("Список из 5 перекусов на неделю"),
   }).describe("Меню на неделю"),
 }); 

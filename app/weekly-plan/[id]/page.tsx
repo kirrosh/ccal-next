@@ -53,7 +53,7 @@ export default function WeeklyPlanPage() {
     if (confirm('Вы уверены, что хотите удалить недельный план?')) {
       try {
         deleteWeeklyPlan(weeklyPlan.id);
-        router.push('/meal-plans');
+        router.push('/');
       } catch (err) {
         console.error('Error deleting weekly plan:', err);
         setError('Ошибка при удалении недельного плана');

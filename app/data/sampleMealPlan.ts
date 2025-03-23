@@ -249,7 +249,7 @@ const sampleMealPlan = {
         },
       },
     ],
-    snack: [
+    snacks: [
       {
         name: "Йогурт с фруктами",
         dishType: "readymade",

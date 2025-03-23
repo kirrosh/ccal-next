@@ -10,7 +10,7 @@ export interface WeeklyPlan {
     breakfast: Meal;
     lunch: Meal;
     dinner: Meal;
-    snack: Meal;
+    snacks: Meal;
   }>;
   mealPlans: MealPlan[];
   createdAt: string;

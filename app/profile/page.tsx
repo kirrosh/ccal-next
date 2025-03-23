@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserProfile, activityMultipliers } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
+import { trpc } from '@/app/_trpc/client';
 
 // Activity level labels in Russian
 const activityLabels = {
@@ -69,15 +70,18 @@ export default function ProfilePage() {
     }
   };
 
+  const updateProfileMutation = trpc.user.updateProfile.useMutation({
+    onSuccess: () => {
+      setHasProfile(true);
+      calculateCalories(profile);
+    }
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Save profile using storage hook
-    setUserProfile(profile);
-    setHasProfile(true);
-    
-    // Calculate calories
-    calculateCalories(profile);
+    // Save profile using tRPC mutation
+    updateProfileMutation.mutate(profile);
   };
 
   return (
@@ -203,8 +207,9 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                disabled={updateProfileMutation.isPending}
               >
-                Сохранить профиль
+                {updateProfileMutation.isPending ? 'Сохранение...' : 'Сохранить профиль'}
               </button>
             </div>
           </form>

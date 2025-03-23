@@ -18,7 +18,7 @@ interface MealPlanProps {
 
 const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
   // Get meal categories 
-  const { breakfast, lunch, dinner, snack } = mealPlan.menu;
+  const { breakfast, lunch, dinner, snacks } = mealPlan.menu;
   
   // Translation map for goal types
   const goalTranslations = {
@@ -41,17 +41,17 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
             <span>Цель: {goalTranslations[mealPlan.goal as keyof typeof goalTranslations]}</span>
           </div>
           
-          {mealPlan.preferences.length > 0 && (
+          {mealPlan.preferences?.length > 0 && (
             <div className="flex items-center gap-1.5 ml-4">
               <Utensils size={16} className="text-primary" />
-              <span>Предпочтения: {mealPlan.preferences.join(', ')}</span>
+              <span>Предпочтения: {mealPlan.preferences?.join(', ')}</span>
             </div>
           )}
           
-          {mealPlan.allergies.length > 0 && (
+          {mealPlan.allergies?.length > 0 && (
             <div className="flex items-center gap-1.5 ml-4">
               <MessageCircleWarning size={16} className="text-primary" />
-              <span>Исключения: {mealPlan.allergies.join(', ')}</span>
+              <span>Исключения: {mealPlan.allergies?.join(', ')}</span>
             </div>
           )}
         </div>
@@ -63,7 +63,7 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
           <TabsTrigger value="breakfast">Завтрак</TabsTrigger>
           <TabsTrigger value="lunch">Обед</TabsTrigger>
           <TabsTrigger value="dinner">Ужин</TabsTrigger>
-          <TabsTrigger value="snack">Перекус</TabsTrigger>
+          <TabsTrigger value="snacks">Перекус</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="space-y-12">
@@ -89,8 +89,8 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
               <MealCategory 
                 title="Перекус" 
                 icon={<Apple size={24} />} 
-                meals={snack} 
-                mealType="snack"
+                meals={snacks} 
+                mealType="snacks"
               />
             </div>
         </TabsContent>
@@ -107,8 +107,8 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
           <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} mealType="dinner"/>
         </TabsContent>
         
-        <TabsContent value="snack">
-          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} mealType="snack"/>
+        <TabsContent value="snacks">
+          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snacks} mealType="snacks"/>
         </TabsContent>
       </Tabs>
     </div>

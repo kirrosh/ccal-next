@@ -102,7 +102,7 @@ export const mealPlan = z.object({
         }).describe("Нутриентный состав ужина"),
       })
     ).length(5).describe("Список из 5 ужинов на неделю"),
-    snack: z.array(
+    snacks: z.array(
       z.object({
         name: z.string().describe("Название перекуса на русском языке"),
         dishType: z.enum(["homemade", "readymade"]).describe("Тип блюда: приготовленное дома или готовое из кафе/кулинарии"),

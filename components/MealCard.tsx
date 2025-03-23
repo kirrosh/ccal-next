@@ -14,6 +14,7 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
 import { Meal, MealType } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
+import { trpc } from '@/app/_trpc/client';
 
 interface MealCardProps {
   meal: Meal;
@@ -28,43 +29,48 @@ const MealCard: React.FC<MealCardProps> = ({
 }) => {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
-
-
-  const handleRegenerate = async () => {
-    try {
-      setIsRegenerating(true);
-
-      const response = await fetch('/api/regenerate-meal', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mealType,
-          current_meal: meal
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to regenerate meal');
-      }
-
-      const newMeal = await response.json();
+  const { getUserProfile } = useStorage();
+  const regenerateMealMutation = trpc.meal.regenerateMeal.useMutation({
+    onSuccess: (newMeal: Meal) => {
       onMealUpdated?.(newMeal);
-      
       toast({
         title: "Блюдо обновлено",
         description: `Новое блюдо: ${newMeal.name}`,
       });
-    } catch (error) {
-      console.error('Error regenerating meal:', error);
+    },
+    onError: () => {
       toast({
         variant: "destructive",
         title: "Ошибка",
         description: "Не удалось сгенерировать новое блюдо",
       });
-    } finally {
+    },
+    onSettled: () => {
       setIsRegenerating(false);
+    }
+  });
+
+  const handleRegenerate = async () => {
+    try {
+      setIsRegenerating(true);
+      const userProfile = getUserProfile();
+      
+      await regenerateMealMutation.mutateAsync({
+        mealType,
+        preferences: { 
+          cuisine: undefined,
+          dietaryRestrictions: []
+        },
+        profile: {
+          gender: userProfile?.gender || 'male',
+          age: userProfile?.age || 30,
+          height: userProfile?.height || 170,
+          weight: userProfile?.weight || 70,
+          activityLevel: userProfile?.activityLevel || 'sedentary'
+        },
+      });
+    } catch (error) {
+      console.error('Error regenerating meal:', error);
     }
   };
 

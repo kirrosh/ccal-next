@@ -17,7 +17,7 @@ export default function MealCategory({ title, icon, meals, mealType }: MealCateg
         <h2 className="text-2xl font-semibold">{title}</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {meals.map((meal, index) => (
+        {meals?.map((meal, index) => (
           <MealCard
             key={`${meal.name}-${index}`}
             meal={meal}

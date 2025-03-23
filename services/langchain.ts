@@ -37,7 +37,7 @@ interface CalorieParams {
 
 // Интерфейс для параметров регенерации одного блюда
 interface RegenerateMealParams {
-  mealType: "breakfast" | "lunch" | "dinner" | "snack";
+  mealType: "breakfast" | "lunch" | "dinner" | "snacks";
   preferences: string[];
   allergies: string[];
   region: string;

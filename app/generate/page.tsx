@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useStorage } from '@/hooks/useStorage';
 import { UserProfile } from '@/types';
+import { api } from '@/utils/api';
 
 export default function GeneratePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const { getUserProfile, addMealPlan } = useStorage();
   const [calories, setCalories] = useState<number | null>(null);
+  const generateMealPlanMutation = api.meal.generateMealPlan.useMutation();
   const [formData, setFormData] = useState({
     goal: 'weight_loss',
     preferences: '',
@@ -56,46 +58,30 @@ export default function GeneratePage() {
     setLoading(true);
 
     try {
+      const userProfile = getUserProfile();
+      if (!userProfile) {
+        throw new Error('User profile not found');
+      }
+
       // Convert comma-separated strings to arrays
       const preferences = formData.preferences.split(',').map(item => item.trim()).filter(Boolean);
       const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
       const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
 
-      // API request data
-      const requestData: any = {
-        goal: formData.goal,
-        preferences,
-        allergies,
-        region: formData.region,
-        available_products
-      };
-
-      // Add user profile data if available
-      if (calories) {
-        requestData.user_profile = {
-          daily_calories: calories
-        };
-      }
-
-      const response = await fetch('/api/generate-meal-plan', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
+      const result = await generateMealPlanMutation.mutateAsync({
+        profile: userProfile,
+        preferences: {
+          cuisine: formData.region,
+          dietaryRestrictions: preferences,
+          mealCount: 7
+        }
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate meal plan');
-      }
-
-      const mealPlan = await response.json();
       
       // Save using storage hook
-      addMealPlan(mealPlan);
+      addMealPlan(result);
       
       // Navigate to the meal plan page
-      router.push(`/meal-plan/${mealPlan.id}`);
+      router.push(`/meal-plan/${result.id}`);
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to generate meal plan. Please try again.');

@@ -30,20 +30,20 @@ interface WeeklyPlanViewProps {
 }
 
 const DAYS_OF_WEEK = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'];
-const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snacks'] as const;
 
 const MEAL_TYPE_LABELS: Record<MealType, string> = {
   breakfast: 'Завтрак',
   lunch: 'Обед',
   dinner: 'Ужин',
-  snack: 'Перекус'
+  snacks: 'Перекус'
 };
 
 const MEAL_ICONS = {
   'breakfast': <Coffee size={20} />,
   'lunch': <UtensilsCrossed size={20} />,
   'dinner': <Moon size={20} />,
-  'snack': <Apple size={20} />
+  'snacks': <Apple size={20} />
 } as const;
 
 const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, onSave }) => {
@@ -66,7 +66,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
     if (Object.keys(currentPlan.days).length === 0) {
       const initialDays = DAYS_OF_WEEK.reduce((acc, day) => {
         acc[day] = MEAL_TYPES.reduce((meals, type) => {
-          meals[type] = mealPlan.menu[type][0];
+          meals[type] = mealPlan.menu[type]?.[0];
           return meals;
         }, {} as Record<MealType, Meal>);
         return acc;
@@ -81,7 +81,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
   }, [mealPlan.menu, currentPlan.days]);
 
   const handleMealChange = (day: string, mealType: MealType, index: number) => {
-    const selectedMeal = mealPlan.menu[mealType][index];
+    const selectedMeal = mealPlan.menu[mealType]?.[index];
     if (!selectedMeal) return;
 
     setCurrentPlan(prev => ({
@@ -152,7 +152,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                     <h3 className="text-lg font-medium">{MEAL_TYPE_LABELS[mealType]}</h3>
                     <div className="w-64">
                       <Select 
-                        value={String(mealPlan.menu[mealType].findIndex(
+                        value={String(mealPlan.menu[mealType]?.findIndex(
                           (m: Meal) => m.name === currentPlan.days[day]?.[mealType]?.name
                         ))}
                         onValueChange={(value) => handleMealChange(day, mealType, Number(value))}
@@ -161,7 +161,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {mealPlan.menu[mealType].map((meal: Meal, index: number) => (
+                          {mealPlan.menu[mealType]?.map((meal: Meal, index: number) => (
                             <SelectItem key={meal.name} value={String(index)}>
                               {meal.name}
                             </SelectItem>
@@ -193,7 +193,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                     </div>
                   )}
                   
-                  {mealType !== 'snack' && <Separator className="my-6" />}
+                  {mealType !== 'snacks' && <Separator className="my-6" />}
                 </div>
               ))}
             </div>
