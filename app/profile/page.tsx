@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserProfile, activityMultipliers } from '@/types';
+import { useStorage } from '@/hooks/useStorage';
 
 // Activity level labels in Russian
 const activityLabels = {
@@ -23,20 +24,21 @@ const defaultProfile: UserProfile = {
 };
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
+  const { getUserProfile, setUserProfile } = useStorage();
+  const userProfile = getUserProfile();
+  const [profile, setProfile] = useState<UserProfile>(userProfile || defaultProfile);
   const [calories, setCalories] = useState<number | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
 
-  // Load profile from localStorage on component mount
+  // Load profile from storage on component mount
   useEffect(() => {
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
+    if (userProfile) {
+      setProfile(userProfile);
       setHasProfile(true);
       // Calculate calories with the loaded profile
-      calculateCalories(JSON.parse(savedProfile));
+      calculateCalories(userProfile);
     }
-  }, []);
+  }, [userProfile]);
 
   // Calculate calories using the Mifflin-St. Jeor formula
   const calculateCalories = (profileData: UserProfile) => {
@@ -70,8 +72,8 @@ export default function ProfilePage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Save profile to localStorage
-    localStorage.setItem('userProfile', JSON.stringify(profile));
+    // Save profile using storage hook
+    setUserProfile(profile);
     setHasProfile(true);
     
     // Calculate calories

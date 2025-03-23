@@ -38,7 +38,7 @@ export interface DailyMenu {
 
 // Тип для плана питания
 export interface MealPlan {
-  id?: string; // Опциональный ID для сохраненного плана
+  id: string;
   userId: string;
   goal: Goal;
   preferences: string[];

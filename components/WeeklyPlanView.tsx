@@ -21,19 +21,7 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import MealCard from './MealCard';
-import { Meal, MealType, MealPlan, DailyMenu } from '@/types';
-
-interface WeeklyPlan {
-  id: string;
-  mealPlanId: string;
-  createdAt: string;
-  days: Record<string, {
-    breakfast: Meal;
-    lunch: Meal;
-    dinner: Meal;
-    snack: Meal;
-  }>;
-}
+import { Meal, MealType, MealPlan, DailyMenu, WeeklyPlan } from '@/types';
 
 interface WeeklyPlanViewProps {
   mealPlan: MealPlan;
@@ -41,34 +29,15 @@ interface WeeklyPlanViewProps {
   onSave: (weeklyPlan: WeeklyPlan) => void;
 }
 
-const DAYS_OF_WEEK = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-  'sunday'
-] as const;
-
-const DAY_NAMES_RU = {
-  'monday': 'Понедельник',
-  'tuesday': 'Вторник',
-  'wednesday': 'Среда',
-  'thursday': 'Четверг',
-  'friday': 'Пятница',
-  'saturday': 'Суббота',
-  'sunday': 'Воскресенье'
-} as const;
-
+const DAYS_OF_WEEK = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'];
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
 
-const MEAL_NAMES_RU = {
-  'breakfast': 'Завтрак',
-  'lunch': 'Обед',
-  'dinner': 'Ужин',
-  'snack': 'Перекус'
-} as const;
+const MEAL_TYPE_LABELS: Record<MealType, string> = {
+  breakfast: 'Завтрак',
+  lunch: 'Обед',
+  dinner: 'Ужин',
+  snack: 'Перекус'
+};
 
 const MEAL_ICONS = {
   'breakfast': <Coffee size={20} />,
@@ -78,50 +47,44 @@ const MEAL_ICONS = {
 } as const;
 
 const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, onSave }) => {
-  const [currentWeeklyPlan, setCurrentWeeklyPlan] = useState<WeeklyPlan>({
-    id: weeklyPlan?.id || crypto.randomUUID(),
-    mealPlanId: mealPlan.id || crypto.randomUUID(),
-    createdAt: weeklyPlan?.createdAt || new Date().toISOString(),
-    days: weeklyPlan?.days || {}
+  const [currentPlan, setCurrentPlan] = useState<WeeklyPlan>(weeklyPlan || {
+    id: crypto.randomUUID(),
+    userId: mealPlan.userId,
+    mealPlanId: mealPlan.id,
+    startDate: new Date().toISOString(),
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    days: {},
+    mealPlans: [mealPlan],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   });
   
-  const [activeDay, setActiveDay] = useState<string>('monday');
+  const [activeDay, setActiveDay] = useState<string>('Понедельник');
   
   // Initialize empty plan if none exists
   useEffect(() => {
-    if (Object.keys(currentWeeklyPlan.days).length === 0) {
+    if (Object.keys(currentPlan.days).length === 0) {
       const initialDays = DAYS_OF_WEEK.reduce((acc, day) => {
-        // Select first meal of each type by default
-        acc[day] = {
-          breakfast: mealPlan.menu.breakfast[0],
-          lunch: mealPlan.menu.lunch[0],
-          dinner: mealPlan.menu.dinner[0],
-          snack: mealPlan.menu.snack[0]
-        };
+        acc[day] = MEAL_TYPES.reduce((meals, type) => {
+          meals[type] = mealPlan.menu[type][0];
+          return meals;
+        }, {} as Record<MealType, Meal>);
         return acc;
-      }, {} as Record<string, {
-        breakfast: Meal;
-        lunch: Meal;
-        dinner: Meal;
-        snack: Meal;
-      }>);
+      }, {} as Record<string, Record<MealType, Meal>>);
       
-      setCurrentWeeklyPlan(prev => ({
+      setCurrentPlan(prev => ({
         ...prev,
-        days: initialDays
+        days: initialDays,
+        updatedAt: new Date().toISOString()
       }));
     }
-  }, [mealPlan.menu, currentWeeklyPlan.days]);
+  }, [mealPlan.menu, currentPlan.days]);
 
-  // Handle meal selection change
-  const handleMealChange = (day: string, mealType: MealType, mealIndex: string) => {
-    const index = parseInt(mealIndex);
-    if (isNaN(index)) return;
-
+  const handleMealChange = (day: string, mealType: MealType, index: number) => {
     const selectedMeal = mealPlan.menu[mealType][index];
     if (!selectedMeal) return;
 
-    setCurrentWeeklyPlan(prev => ({
+    setCurrentPlan(prev => ({
       ...prev,
       days: {
         ...prev.days,
@@ -129,20 +92,15 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
           ...prev.days[day],
           [mealType]: selectedMeal
         }
-      }
+      },
+      updatedAt: new Date().toISOString()
     }));
   };
 
-  // Save weekly plan
-  const handleSave = () => {
-    onSave(currentWeeklyPlan);
-  };
-
-  // Calculate daily totals
   const calculateDailyTotals = (day: string) => {
-    if (!currentWeeklyPlan.days[day]) return { calories: 0, protein: 0, fats: 0, carbs: 0 };
+    if (!currentPlan.days[day]) return { calories: 0, protein: 0, fats: 0, carbs: 0 };
     
-    const meals = currentWeeklyPlan.days[day];
+    const meals = currentPlan.days[day];
     return Object.values(meals).reduce((totals, meal) => {
       return {
         calories: totals.calories + meal.nutrients.calories,
@@ -157,26 +115,26 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
     <div className="w-full space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <h2 className="text-2xl font-bold">План питания на неделю</h2>
-        <Button onClick={handleSave} className="bg-primary hover:bg-primary-dark">
+        <Button onClick={() => onSave(currentPlan)} className="bg-primary hover:bg-primary-dark">
           Сохранить план
         </Button>
       </div>
       
-      <Tabs defaultValue="monday" value={activeDay} onValueChange={setActiveDay}>
+      <Tabs defaultValue="Понедельник" value={activeDay} onValueChange={setActiveDay}>
         <TabsList className="grid grid-cols-7 mb-8">
           {DAYS_OF_WEEK.map(day => (
             <TabsTrigger key={day} value={day} className="text-xs sm:text-sm">
-              {DAY_NAMES_RU[day as keyof typeof DAY_NAMES_RU]}
+              {day}
             </TabsTrigger>
           ))}
         </TabsList>
         
-        {DAYS_OF_WEEK.map(day => (
+        {DAYS_OF_WEEK.map((day) => (
           <TabsContent key={day} value={day}>
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle className="flex justify-between items-center">
-                  <span>{DAY_NAMES_RU[day as keyof typeof DAY_NAMES_RU]}</span>
+                  <span>{day}</span>
                   <div className="text-sm font-normal flex gap-3">
                     <span>Всего: {calculateDailyTotals(day).calories} ккал</span>
                     <span>Б: {calculateDailyTotals(day).protein}г</span>
@@ -188,45 +146,54 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
             </Card>
             
             <div className="space-y-8">
-              {MEAL_TYPES.map(mealType => (
-                <div key={mealType}>
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-primary">{MEAL_ICONS[mealType as keyof typeof MEAL_ICONS]}</span>
-                      <h3 className="text-xl font-semibold">{MEAL_NAMES_RU[mealType as keyof typeof MEAL_NAMES_RU]}</h3>
-                    </div>
-                    
-                    <Select 
-                      value={mealPlan.menu[mealType as keyof typeof mealPlan.menu].findIndex(
-                        (m: Meal) => m.name === currentWeeklyPlan.days[day]?.[mealType as keyof DailyMenu]?.name
-                      ).toString()} 
-                      onValueChange={(value) => handleMealChange(day, mealType as MealType, value)}
-                    >
-                      <SelectTrigger className="w-[250px]">
-                        <SelectValue placeholder="Выберите блюдо" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mealPlan.menu[mealType as keyof typeof mealPlan.menu].map((meal: Meal, index: number) => (
-                          <SelectItem key={index} value={index.toString()}>
-                            {meal.name} ({meal.nutrients.calories} ккал)
-                          </SelectItem>
+              {MEAL_TYPES.map((mealType) => (
+                <div key={mealType} className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">{MEAL_TYPE_LABELS[mealType]}</h3>
+                    <div className="w-64">
+                      <Select 
+                        value={String(mealPlan.menu[mealType].findIndex(
+                          (m: Meal) => m.name === currentPlan.days[day]?.[mealType]?.name
                         ))}
-                      </SelectContent>
-                    </Select>
+                        onValueChange={(value) => handleMealChange(day, mealType, Number(value))}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mealPlan.menu[mealType].map((meal: Meal, index: number) => (
+                            <SelectItem key={meal.name} value={String(index)}>
+                              {meal.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   
-                  {currentWeeklyPlan.days[day] && currentWeeklyPlan.days[day][mealType as keyof DailyMenu] && (
+                  {currentPlan.days[day] && currentPlan.days[day][mealType] && (
                     <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
                       <MealCard
-                        meal={currentWeeklyPlan.days[day][mealType as keyof DailyMenu]}
-                        mealType={mealType as keyof DailyMenu}
-                        onMealUpdated={(meal) => {
-                          console.log(meal);
+                        meal={currentPlan.days[day][mealType]}
+                        mealType={mealType}
+                        onMealUpdated={(updatedMeal) => {
+                          setCurrentPlan(prev => ({
+                            ...prev,
+                            days: {
+                              ...prev.days,
+                              [day]: {
+                                ...prev.days[day],
+                                [mealType]: updatedMeal
+                              }
+                            },
+                            updatedAt: new Date().toISOString()
+                          }));
                         }}
                       />
                     </div>
                   )}
-                  {mealType !== 'snack' && <Separator className="my-8" />}
+                  
+                  {mealType !== 'snack' && <Separator className="my-6" />}
                 </div>
               ))}
             </div>

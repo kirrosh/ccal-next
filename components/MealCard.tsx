@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
 import { Meal, MealType } from '@/types';
+import { useStorage } from '@/hooks/useStorage';
 
 interface MealCardProps {
   meal: Meal;
@@ -27,6 +28,7 @@ const MealCard: React.FC<MealCardProps> = ({
 }) => {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
+
 
   const handleRegenerate = async () => {
     try {

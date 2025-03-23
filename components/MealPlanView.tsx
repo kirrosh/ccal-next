@@ -9,7 +9,6 @@ import {
   MessageCircleWarning,
   HeartHandshake
 } from 'lucide-react';
-import { Separator } from "@/components/ui/separator";
 import MealCategory from './MealCategory';
 import { MealPlan } from '@/types';
 

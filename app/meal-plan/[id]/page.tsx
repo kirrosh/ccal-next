@@ -4,18 +4,13 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MealPlanView from '@/components/MealPlanView';
-
-// Define a simplified type for meal plan
-interface MealPlan {
-  id: string;
-  createdAt: string;
-  [key: string]: any; // Allow for other properties
-}
-
+import { useStorage } from '@/hooks/useStorage';
+import { MealPlan } from '@/types';
 
 export default function MealPlanPage() {
   const params = useParams();
   const router = useRouter();
+  const { getMealPlanById, deleteMealPlan } = useStorage();
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,10 +18,9 @@ export default function MealPlanPage() {
   useEffect(() => {
     const id = params.id as string;
     
-    // Retrieve from localStorage
+    // Retrieve from storage
     try {
-      const savedPlans = JSON.parse(localStorage.getItem('mealPlans') || '[]');
-      const foundPlan = savedPlans.find((plan: any) => plan.id === id);
+      const foundPlan = getMealPlanById(id);
       
       if (foundPlan) {
         setMealPlan(foundPlan);
@@ -44,22 +38,8 @@ export default function MealPlanPage() {
   const handleDelete = () => {
     if (mealPlan && confirm('Вы уверены, что хотите удалить этот рацион?')) {
       try {
-        // Remove from meal plans
-        const savedPlans = JSON.parse(localStorage.getItem('mealPlans') || '[]');
-        const updatedPlans = savedPlans.filter((plan: any) => plan.id !== mealPlan.id);
-        localStorage.setItem('mealPlans', JSON.stringify(updatedPlans));
-        
-        // Also remove any weekly plans based on this meal plan
-        const savedWeeklyPlans = JSON.parse(localStorage.getItem('weeklyPlans') || '[]');
-        const updatedWeeklyPlans = savedWeeklyPlans.filter(
-          (plan: any) => plan.mealPlanId !== mealPlan.id
-        );
-        localStorage.setItem('weeklyPlans', JSON.stringify(updatedWeeklyPlans));
-        
-        
-        // Redirect to home page
+        deleteMealPlan(mealPlan.id);
         router.push('/');
-        // alert('Рацион успешно удален');
       } catch (error) {
         console.error('Error deleting meal plan:', error);
         alert('Ошибка при удалении рациона');

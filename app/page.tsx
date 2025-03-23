@@ -3,41 +3,22 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MealPlan } from '@/types';
+import { useStorage } from '@/hooks/useStorage';
 
 export default function Home() {
-  const [savedPlans, setSavedPlans] = useState<MealPlan[]>([]);
-  const [weeklyPlans, setWeeklyPlans] = useState<{id: string; mealPlanId: string; createdAt: string}[]>([]);
+  const { getMealPlans, deleteMealPlan } = useStorage();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load saved meal plans
-    try {
-      const plans = JSON.parse(localStorage.getItem('mealPlans') || '[]');
-      setSavedPlans(plans);
-      
-      // Load weekly plans
-      const weekly = JSON.parse(localStorage.getItem('weeklyPlans') || '[]');
-      setWeeklyPlans(weekly);
-    } catch (error) {
-      console.error('Error loading saved plans:', error);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
   }, []);
 
-  const deleteMealPlan = (id: string) => {
+  const mealPlans = getMealPlans();
+
+  const handleDeleteMealPlan = (id: string) => {
     if (confirm('Вы уверены, что хотите удалить этот рацион?')) {
       try {
-        // Remove meal plan
-        const updatedPlans = savedPlans.filter(plan => plan.id !== id);
-        localStorage.setItem('mealPlans', JSON.stringify(updatedPlans));
-        setSavedPlans(updatedPlans);
-        
-        // Remove associated weekly plans
-        const updatedWeeklyPlans = weeklyPlans.filter(plan => plan.mealPlanId !== id);
-        localStorage.setItem('weeklyPlans', JSON.stringify(updatedWeeklyPlans));
-        setWeeklyPlans(updatedWeeklyPlans);
-        
+        deleteMealPlan(id);
         alert('Рацион успешно удален');
       } catch (error) {
         console.error('Error deleting meal plan:', error);
@@ -88,16 +69,16 @@ export default function Home() {
           </div>
         ) : (
           <div>
-            {savedPlans.length > 0 ? (
+            {mealPlans.length > 0 ? (
               <div>
                 <h2 className="text-xl font-semibold mb-6">Ваши рационы</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {savedPlans.map((plan) => (
+                  {mealPlans.map((plan) => (
                     <div key={plan.id} className="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col h-full">
                       <div className="flex justify-between items-start">
                         <h3 className="text-lg font-medium mb-2">Рацион питания</h3>
                         <button 
-                          onClick={() => deleteMealPlan(plan.id || '')}
+                          onClick={() => handleDeleteMealPlan(plan.id || '')}
                           className="text-red-500 hover:text-red-700 focus:outline-none" 
                           aria-label="Удалить рацион"
                         >
