@@ -7,9 +7,10 @@ interface MealCategoryProps {
   icon: React.ReactNode;
   meals: Meal[];
   mealType: MealType;
+  mealPlanId: string;
 }
 
-export default function MealCategory({ title, icon, meals, mealType }: MealCategoryProps) {
+export default function MealCategory({ title, icon, meals, mealType, mealPlanId }: MealCategoryProps) {
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 mb-4">
@@ -22,6 +23,7 @@ export default function MealCategory({ title, icon, meals, mealType }: MealCateg
             key={`${meal.name}-${index}`}
             meal={meal}
             mealType={mealType}
+            mealPlanId={mealPlanId}
             onMealUpdated={(meal) => {
               console.log(meal);
             }}

@@ -73,42 +73,70 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
                 icon={<Coffee size={24} />} 
                 meals={breakfast} 
                 mealType="breakfast"
+                mealPlanId={mealPlan.id}
               />
               <MealCategory 
                 title="Обед" 
                 icon={<UtensilsCrossed size={24} />} 
                 meals={lunch} 
                 mealType="lunch"
+                mealPlanId={mealPlan.id}
               />
               <MealCategory 
                 title="Ужин" 
                 icon={<Moon size={24} />} 
                 meals={dinner} 
                 mealType="dinner"
+                mealPlanId={mealPlan.id}
               />
               <MealCategory 
                 title="Перекус" 
                 icon={<Apple size={24} />} 
                 meals={snacks} 
                 mealType="snacks"
+                mealPlanId={mealPlan.id}
               />
             </div>
         </TabsContent>
         
         <TabsContent value="breakfast">
-          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} mealType="breakfast"/>
+          <MealCategory 
+            title="Завтрак" 
+            icon={<Coffee size={24} />} 
+            meals={breakfast} 
+            mealType="breakfast"
+            mealPlanId={mealPlan.id}
+          />
         </TabsContent>
         
         <TabsContent value="lunch">
-          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} mealType="lunch"/>
+          <MealCategory 
+            title="Обед" 
+            icon={<UtensilsCrossed size={24} />} 
+            meals={lunch} 
+            mealType="lunch"
+            mealPlanId={mealPlan.id}
+          />
         </TabsContent>
         
         <TabsContent value="dinner">
-          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} mealType="dinner"/>
+          <MealCategory 
+            title="Ужин" 
+            icon={<Moon size={24} />} 
+            meals={dinner} 
+            mealType="dinner"
+            mealPlanId={mealPlan.id}
+          />
         </TabsContent>
         
         <TabsContent value="snacks">
-          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snacks} mealType="snacks"/>
+          <MealCategory 
+            title="Перекус" 
+            icon={<Apple size={24} />} 
+            meals={snacks} 
+            mealType="snacks"
+            mealPlanId={mealPlan.id}
+          />
         </TabsContent>
       </Tabs>
     </div>

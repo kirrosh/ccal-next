@@ -176,6 +176,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                       <MealCard
                         meal={currentPlan.days[day][mealType]}
                         mealType={mealType}
+                        mealPlanId={mealPlan.id}
                         onMealUpdated={(updatedMeal) => {
                           setCurrentPlan(prev => ({
                             ...prev,

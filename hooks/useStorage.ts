@@ -32,7 +32,11 @@ const setStorageData = <K extends keyof StorageData>(
   value: StorageData[K]
 ) => {
   try {
+    console.log(`Saving ${key} to localStorage:`, value);
     localStorage.setItem(key, JSON.stringify(value));
+    // Verify the save
+    const savedValue = localStorage.getItem(key);
+    console.log(`Verified ${key} in localStorage:`, savedValue ? JSON.parse(savedValue) : null);
   } catch (error) {
     console.error(`Error saving ${key} to localStorage:`, error);
   }
@@ -79,10 +83,13 @@ export const useStorage = () => {
   };
 
   const updateMealPlan = (planId: string, updatedPlan: MealPlan) => {
+    console.log('Updating meal plan:', { planId, updatedPlan });
     const plans = getMealPlans();
+    console.log('Current meal plans:', plans);
     const updatedPlans = plans.map(plan => 
       plan.id === planId ? updatedPlan : plan
     );
+    console.log('Updated meal plans:', updatedPlans);
     setMealPlans(updatedPlans);
   };
 

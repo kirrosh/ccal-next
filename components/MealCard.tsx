@@ -12,33 +12,63 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
-import { Meal, MealType } from '@/types';
+import { Meal, MealType, MealPlan, WeeklyPlan } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
 import { trpc } from '@/app/_trpc/client';
 
 interface MealCardProps {
   meal: Meal;
   mealType: MealType;
+  mealPlanId: string;
   onMealUpdated?: (meal: Meal) => void;
 }
 
 const MealCard: React.FC<MealCardProps> = ({
   meal,
   mealType,
+  mealPlanId,
   onMealUpdated
 }) => {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
-  const { getUserProfile } = useStorage();
+  const { getUserProfile, getMealPlanById, updateMealPlan, getWeeklyPlanByMealPlanId, updateWeeklyPlan } = useStorage();
+  
   const regenerateMealMutation = trpc.meal.regenerateMeal.useMutation({
     onSuccess: (newMeal: Meal) => {
+      console.log('Regenerate meal success:', newMeal);
+      
+      // Update meal plan in storage
+      const mealPlan = getMealPlanById(mealPlanId);
+      console.log('Current meal plan:', mealPlan);
+      
+      if (mealPlan) {
+        const updatedMealPlan = {
+          ...mealPlan,
+          menu: {
+            ...mealPlan.menu,
+            [mealType]: mealPlan.menu[mealType].map(m => 
+              m.name === meal.name ? newMeal : m
+            )
+          }
+        };
+        console.log('Updating meal plan with:', updatedMealPlan);
+        updateMealPlan(mealPlanId, updatedMealPlan);
+        
+        // Verify the update
+        const updatedPlan = getMealPlanById(mealPlanId);
+        console.log('Verified updated meal plan:', updatedPlan);
+      } else {
+        console.error('Meal plan not found:', mealPlanId);
+      }
+
       onMealUpdated?.(newMeal);
       toast({
         title: "Блюдо обновлено",
         description: `Новое блюдо: ${newMeal.name}`,
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Regenerate meal error:', error);
       toast({
         variant: "destructive",
         title: "Ошибка",
@@ -54,6 +84,7 @@ const MealCard: React.FC<MealCardProps> = ({
     try {
       setIsRegenerating(true);
       const userProfile = getUserProfile();
+      console.log('Regenerating meal with profile:', userProfile);
       
       await regenerateMealMutation.mutateAsync({
         mealType,
