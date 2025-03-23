@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserProfile, activityMultipliers } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
-import { trpc } from '@/app/_trpc/client';
+import { api } from '@/trpc/react';
 
 // Activity level labels in Russian
 const activityLabels = {
@@ -70,7 +70,7 @@ export default function ProfilePage() {
     }
   };
 
-  const updateProfileMutation = trpc.user.updateProfile.useMutation({
+  const updateProfileMutation = api.user.updateProfile.useMutation({
     onSuccess: () => {
       setHasProfile(true);
       calculateCalories(profile);

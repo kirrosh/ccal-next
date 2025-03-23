@@ -12,9 +12,9 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
-import { Meal, MealType, MealPlan, WeeklyPlan } from '@/types';
+import { Meal, MealType, } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
-import { trpc } from '@/app/_trpc/client';
+import { api } from '@/trpc/react';
 
 interface MealCardProps {
   meal: Meal;
@@ -33,7 +33,7 @@ const MealCard: React.FC<MealCardProps> = ({
   const { toast } = useToast();
   const { getUserProfile, getMealPlanById, updateMealPlan, getWeeklyPlanByMealPlanId, updateWeeklyPlan } = useStorage();
   
-  const regenerateMealMutation = trpc.meal.regenerateMeal.useMutation({
+  const regenerateMealMutation = api.meal.regenerateMeal.useMutation({
     onSuccess: (newMeal: Meal) => {
       console.log('Regenerate meal success:', newMeal);
       
