@@ -1,20 +1,17 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MealCategory from './MealCategory';
 import { 
   Coffee, 
   UtensilsCrossed, 
   Moon, 
-  Apple, 
-  Utensils, 
-  BadgePlus, 
-  BellRing,
-  Apple as AppleIcon,
+  Apple,
+  Utensils,
   MessageCircleWarning,
   HeartHandshake
 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { MealPlan } from '@/schemas/meal';
+import { Separator } from "@/components/ui/separator";
+import MealCategory from './MealCategory';
+import { MealPlan } from '@/types';
 
 interface MealPlanProps {
   mealPlan: MealPlan; // Using any here as we're importing the sample data
@@ -71,29 +68,48 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
         </TabsList>
         
         <TabsContent value="all" className="space-y-12">
-          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} mealPlan={mealPlan} mealType="breakfast"/>
-          <Separator />
-          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} mealPlan={mealPlan} mealType="lunch"/>
-          <Separator />
-          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} mealPlan={mealPlan} mealType="dinner"/>
-          <Separator />
-          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} mealPlan={mealPlan} mealType="snack"/>
+            <div className="space-y-8">
+              <MealCategory 
+                title="Завтрак" 
+                icon={<Coffee size={24} />} 
+                meals={breakfast} 
+                mealType="breakfast"
+              />
+              <MealCategory 
+                title="Обед" 
+                icon={<UtensilsCrossed size={24} />} 
+                meals={lunch} 
+                mealType="lunch"
+              />
+              <MealCategory 
+                title="Ужин" 
+                icon={<Moon size={24} />} 
+                meals={dinner} 
+                mealType="dinner"
+              />
+              <MealCategory 
+                title="Перекус" 
+                icon={<Apple size={24} />} 
+                meals={snack} 
+                mealType="snack"
+              />
+            </div>
         </TabsContent>
         
         <TabsContent value="breakfast">
-          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} mealPlan={mealPlan} mealType="breakfast"/>
+          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} mealType="breakfast"/>
         </TabsContent>
         
         <TabsContent value="lunch">
-          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} mealPlan={mealPlan} mealType="lunch"/>
+          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} mealType="lunch"/>
         </TabsContent>
         
         <TabsContent value="dinner">
-          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} mealPlan={mealPlan} mealType="dinner"/>
+          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} mealType="dinner"/>
         </TabsContent>
         
         <TabsContent value="snack">
-          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} mealPlan={mealPlan} mealType="snack"/>
+          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} mealType="snack"/>
         </TabsContent>
       </Tabs>
     </div>

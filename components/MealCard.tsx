@@ -12,46 +12,17 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Ingredient {
-  name: string;
-  amount: number;
-  unit: string;
-}
-
-interface Nutrients {
-  calories: number;
-  protein: number;
-  fats: number;
-  carbs: number;
-}
-
-interface Meal {
-  name: string;
-  dishType: "homemade" | "readymade";
-  ingredients: Ingredient[];
-  nutrients: Nutrients;
-  servingSize: number;
-}
+import { Meal, MealType } from '@/types';
 
 interface MealCardProps {
   meal: Meal;
-  mealType: "breakfast" | "lunch" | "dinner" | "snack";
-  // userProfile: {
-  //   gender: 'male' | 'female';
-  //   age: number;
-  //   height: number;
-  //   weight: number;
-  //   activityLevel: string;
-  //   daily_calories: number;
-  // };
-  onMealUpdated: (newMeal: Meal) => void;
+  mealType: MealType;
+  onMealUpdated?: (meal: Meal) => void;
 }
 
 const MealCard: React.FC<MealCardProps> = ({
   meal,
   mealType,
-  // userProfile,
   onMealUpdated
 }) => {
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -68,7 +39,6 @@ const MealCard: React.FC<MealCardProps> = ({
         },
         body: JSON.stringify({
           mealType,
-          // user_profile: userProfile,
           current_meal: meal
         }),
       });
@@ -78,7 +48,7 @@ const MealCard: React.FC<MealCardProps> = ({
       }
 
       const newMeal = await response.json();
-      onMealUpdated(newMeal);
+      onMealUpdated?.(newMeal);
       
       toast({
         title: "Блюдо обновлено",

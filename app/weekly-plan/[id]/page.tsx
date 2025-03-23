@@ -4,21 +4,19 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
+import { MealPlan, Meal } from '@/types';
 
 // Define types
-interface MealPlan {
-  id: string;
-  createdAt: string;
-  [key: string]: any;
-}
-
 interface WeeklyPlan {
   id: string;
   mealPlanId: string;
   createdAt: string;
-  days: {
-    [key: string]: any;
-  };
+  days: Record<string, {
+    breakfast: Meal;
+    lunch: Meal;
+    dinner: Meal;
+    snack: Meal;
+  }>;
 }
 
 export default function WeeklyPlanPage() {

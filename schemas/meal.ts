@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { mealPlanSchema } from '@/types';
 
 // Схема для ингредиента
 export const ingredient = z.object({
@@ -124,5 +125,5 @@ export const mealPlan = z.object({
   }).describe("Меню на неделю"),
 });
 
-
-export type MealPlan = z.infer<typeof mealPlan>;
+export { mealPlanSchema };
+export type MealPlan = z.infer<typeof mealPlanSchema>;
