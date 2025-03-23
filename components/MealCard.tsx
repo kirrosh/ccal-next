@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -9,6 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Ingredient {
   name: string;
@@ -23,7 +26,7 @@ interface Nutrients {
   carbs: number;
 }
 
-interface MealCardProps {
+interface Meal {
   name: string;
   dishType: "homemade" | "readymade";
   ingredients: Ingredient[];
@@ -31,24 +34,85 @@ interface MealCardProps {
   servingSize: number;
 }
 
+interface MealCardProps {
+  meal: Meal;
+  mealType: "breakfast" | "lunch" | "dinner" | "snack";
+  // userProfile: {
+  //   gender: 'male' | 'female';
+  //   age: number;
+  //   height: number;
+  //   weight: number;
+  //   activityLevel: string;
+  //   daily_calories: number;
+  // };
+  onMealUpdated: (newMeal: Meal) => void;
+}
+
 const MealCard: React.FC<MealCardProps> = ({
-  name,
-  dishType,
-  ingredients,
-  nutrients,
-  servingSize
+  meal,
+  mealType,
+  // userProfile,
+  onMealUpdated
 }) => {
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const { toast } = useToast();
+
+  const handleRegenerate = async () => {
+    try {
+      setIsRegenerating(true);
+
+      const response = await fetch('/api/regenerate-meal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mealType,
+          // user_profile: userProfile,
+          current_meal: meal
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to regenerate meal');
+      }
+
+      const newMeal = await response.json();
+      onMealUpdated(newMeal);
+      
+      toast({
+        title: "Блюдо обновлено",
+        description: `Новое блюдо: ${newMeal.name}`,
+      });
+    } catch (error) {
+      console.error('Error regenerating meal:', error);
+      toast({
+        variant: "destructive",
+        title: "Ошибка",
+        description: "Не удалось сгенерировать новое блюдо",
+      });
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   return (
-    <Card className="w-full h-full flex flex-col overflow-hidden transition-all hover:shadow-md">
+    <Card className={`w-full h-full flex flex-col overflow-hidden transition-all hover:shadow-md relative ${isRegenerating ? 'opacity-50' : ''}`}>
+      {isRegenerating && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-50">
+          <ReloadIcon className="h-8 w-8 animate-spin" />
+        </div>
+      )}
+      
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-xl leading-tight">{name}</CardTitle>
-          <Badge variant={dishType === "homemade" ? "default" : "secondary"} className="ml-2 shrink-0">
-            {dishType === "homemade" ? "Домашнее" : "Готовое"}
+          <CardTitle className="text-xl leading-tight">{meal.name}</CardTitle>
+          <Badge variant={meal.dishType === "homemade" ? "default" : "secondary"} className="ml-2 shrink-0">
+            {meal.dishType === "homemade" ? "Домашнее" : "Готовое"}
           </Badge>
         </div>
         <CardDescription>
-          {ingredients.length} ингредиентов • {nutrients.calories} ккал • Порция: {servingSize} г
+          {meal.ingredients.length} ингредиентов • {meal.nutrients.calories} ккал • Порция: {meal.servingSize} г
         </CardDescription>
       </CardHeader>
       
@@ -57,7 +121,7 @@ const MealCard: React.FC<MealCardProps> = ({
           <div>
             <h4 className="text-sm font-medium mb-2">Ингредиенты:</h4>
             <ul className="text-sm space-y-1">
-              {ingredients.map((ingredient, index) => (
+              {meal.ingredients.map((ingredient, index) => (
                 <li key={index} className="flex justify-between">
                   <span className="mr-2">{ingredient.name}</span>
                   <span className="text-muted-foreground whitespace-nowrap">{ingredient.amount} {ingredient.unit}</span>
@@ -73,19 +137,19 @@ const MealCard: React.FC<MealCardProps> = ({
               <h4 className="text-sm font-medium mb-2">Нутриенты:</h4>
               <div className="grid grid-cols-4 gap-2 text-sm">
                 <div className="flex flex-col items-center p-1 rounded-md bg-primary/5">
-                  <span className="font-medium">{nutrients.calories}</span>
+                  <span className="font-medium">{meal.nutrients.calories}</span>
                   <span className="text-xs text-muted-foreground">ккал</span>
                 </div>
                 <div className="flex flex-col items-center p-1 rounded-md bg-blue-50">
-                  <span className="font-medium">{nutrients.protein}г</span>
+                  <span className="font-medium">{meal.nutrients.protein}г</span>
                   <span className="text-xs text-muted-foreground">белки</span>
                 </div>
                 <div className="flex flex-col items-center p-1 rounded-md bg-yellow-50">
-                  <span className="font-medium">{nutrients.fats}г</span>
+                  <span className="font-medium">{meal.nutrients.fats}г</span>
                   <span className="text-xs text-muted-foreground">жиры</span>
                 </div>
                 <div className="flex flex-col items-center p-1 rounded-md bg-green-50">
-                  <span className="font-medium">{nutrients.carbs}г</span>
+                  <span className="font-medium">{meal.nutrients.carbs}г</span>
                   <span className="text-xs text-muted-foreground">углев.</span>
                 </div>
               </div>
@@ -93,6 +157,25 @@ const MealCard: React.FC<MealCardProps> = ({
           </div>
         </div>
       </CardContent>
+
+      <CardFooter>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full"
+          onClick={handleRegenerate}
+          disabled={isRegenerating}
+        >
+          {isRegenerating ? (
+            <>
+              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+              Генерация...
+            </>
+          ) : (
+            'Заменить блюдо'
+          )}
+        </Button>
+      </CardFooter>
     </Card>
   );
 };

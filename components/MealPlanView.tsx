@@ -13,11 +13,11 @@ import {
   MessageCircleWarning,
   HeartHandshake
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { MealPlan } from '@/schemas/meal';
 
 interface MealPlanProps {
-  mealPlan: any; // Using any here as we're importing the sample data
+  mealPlan: MealPlan; // Using any here as we're importing the sample data
 }
 
 const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
@@ -71,29 +71,29 @@ const MealPlanView: React.FC<MealPlanProps> = ({ mealPlan }) => {
         </TabsList>
         
         <TabsContent value="all" className="space-y-12">
-          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} />
+          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} mealPlan={mealPlan} mealType="breakfast"/>
           <Separator />
-          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} />
+          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} mealPlan={mealPlan} mealType="lunch"/>
           <Separator />
-          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} />
+          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} mealPlan={mealPlan} mealType="dinner"/>
           <Separator />
-          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} />
+          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} mealPlan={mealPlan} mealType="snack"/>
         </TabsContent>
         
         <TabsContent value="breakfast">
-          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} />
+          <MealCategory title="Завтрак" icon={<Coffee size={24} />} meals={breakfast} mealPlan={mealPlan} mealType="breakfast"/>
         </TabsContent>
         
         <TabsContent value="lunch">
-          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} />
+          <MealCategory title="Обед" icon={<UtensilsCrossed size={24} />} meals={lunch} mealPlan={mealPlan} mealType="lunch"/>
         </TabsContent>
         
         <TabsContent value="dinner">
-          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} />
+          <MealCategory title="Ужин" icon={<Moon size={24} />} meals={dinner} mealPlan={mealPlan} mealType="dinner"/>
         </TabsContent>
         
         <TabsContent value="snack">
-          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} />
+          <MealCategory title="Перекус" icon={<Apple size={24} />} meals={snack} mealPlan={mealPlan} mealType="snack"/>
         </TabsContent>
       </Tabs>
     </div>

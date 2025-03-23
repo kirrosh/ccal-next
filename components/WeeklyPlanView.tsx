@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import MealCard from './MealCard';
+import { MealPlan } from '@/schemas/meal';
 
 interface Ingredient {
   name: string;
@@ -60,8 +61,18 @@ interface WeeklyPlan {
   };
 }
 
+type MealPlanObject = {
+  id: string;
+  createdAt: string;
+  menu: {
+    breakfast: Meal[];
+    lunch: Meal[];
+    dinner: Meal[];
+    snack: Meal[];
+  };
+}
 interface WeeklyPlanViewProps {
-  mealPlan: any;
+  mealPlan: MealPlanObject;
   weeklyPlan?: WeeklyPlan;
   onSave: (weeklyPlan: WeeklyPlan) => void;
 }
@@ -136,7 +147,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
   // Handle meal selection change
   const handleMealChange = (day: string, mealType: string, mealIndex: string) => {
     const index = parseInt(mealIndex);
-    const selectedMeal = mealPlan.menu[mealType][index];
+    const selectedMeal = mealPlan.menu[mealType as keyof typeof mealPlan.menu][index];
     
     setCurrentWeeklyPlan(prev => ({
       ...prev,
@@ -214,7 +225,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                     </div>
                     
                     <Select 
-                      value={mealPlan.menu[mealType].findIndex(
+                      value={mealPlan.menu[mealType as keyof typeof mealPlan.menu].findIndex(
                         (m: Meal) => m.name === currentWeeklyPlan.days[day]?.[mealType as keyof DailyMeals]?.name
                       ).toString()} 
                       onValueChange={(value) => handleMealChange(day, mealType, value)}
@@ -223,7 +234,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                         <SelectValue placeholder="Выберите блюдо" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mealPlan.menu[mealType].map((meal: Meal, index: number) => (
+                        {mealPlan.menu[mealType as keyof typeof mealPlan.menu].map((meal: Meal, index: number) => (
                           <SelectItem key={index} value={index.toString()}>
                             {meal.name} ({meal.nutrients.calories} ккал)
                           </SelectItem>
@@ -235,11 +246,16 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                   {currentWeeklyPlan.days[day] && currentWeeklyPlan.days[day][mealType as keyof DailyMeals] && (
                     <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
                       <MealCard
-                        name={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].name}
-                        dishType={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].dishType}
-                        ingredients={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].ingredients}
-                        nutrients={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].nutrients}
-                        servingSize={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].servingSize}
+                        // name={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].name}
+                        // dishType={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].dishType}
+                        // ingredients={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].ingredients}
+                        // nutrients={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].nutrients}
+                        // servingSize={currentWeeklyPlan.days[day][mealType as keyof DailyMeals].servingSize}
+                        meal={currentWeeklyPlan.days[day][mealType as keyof DailyMeals]}
+                        mealType={mealType as keyof DailyMeals}
+                        onMealUpdated={(meal) => {
+                          console.log(meal);
+                        }}
                       />
                     </div>
                   )}

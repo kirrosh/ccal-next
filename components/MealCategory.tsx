@@ -1,6 +1,6 @@
 import React from 'react';
 import MealCard from './MealCard';
-
+import { MealPlan} from '@/schemas/meal';
 interface Ingredient {
   name: string;
   amount: number;
@@ -22,16 +22,23 @@ interface Meal {
   nutrients: Nutrients;
 }
 
+
+
 interface MealCategoryProps {
   title: string;
   icon: React.ReactNode;
   meals: Meal[];
+  mealPlan: MealPlan;
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
 }
 
 const MealCategory: React.FC<MealCategoryProps> = ({ 
   title, 
   icon, 
-  meals 
+  meals,
+  mealPlan,
+  mealType,
+  // userProfile,
 }) => {
   return (
     <div className="w-full">
@@ -44,11 +51,12 @@ const MealCategory: React.FC<MealCategoryProps> = ({
         {meals.map((meal, index) => (
           <MealCard
             key={index}
-            name={meal.name}
-            dishType={meal.dishType}
-            ingredients={meal.ingredients}
-            nutrients={meal.nutrients}
-            servingSize={meal.servingSize}
+            meal={meal}
+            mealType={mealType}
+            // userProfile={userProfile}
+            onMealUpdated={(meal) => {
+              console.log(meal);
+            }}
           />
         ))}
       </div>

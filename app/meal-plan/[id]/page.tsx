@@ -12,6 +12,7 @@ interface MealPlan {
   [key: string]: any; // Allow for other properties
 }
 
+
 export default function MealPlanPage() {
   const params = useParams();
   const router = useRouter();
@@ -54,6 +55,7 @@ export default function MealPlanPage() {
           (plan: any) => plan.mealPlanId !== mealPlan.id
         );
         localStorage.setItem('weeklyPlans', JSON.stringify(updatedWeeklyPlans));
+        
         
         // Redirect to home page
         router.push('/');
@@ -129,7 +131,7 @@ export default function MealPlanPage() {
               </div>
             </div>
             
-            <MealPlanView mealPlan={mealPlan} />
+            <MealPlanView mealPlan={mealPlan as any} />
           </>
         )}
       </main>
