@@ -37,9 +37,6 @@ export interface DailyMenu {
   snacks: Meal[];
 }
 
-// Тип для плана питания
-export type MealPlan = z.infer<typeof mealPlanSchema>;
-
 // Zod схемы
 export const ingredientSchema = z.object({
   name: z.string(),

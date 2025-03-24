@@ -20,51 +20,22 @@ interface MealCardProps {
   meal: Meal;
   mealType: MealType;
   mealPlanId: string;
+  mealIndex: number;
   onMealUpdated?: (meal: Meal) => void;
 }
 
 const MealCard: React.FC<MealCardProps> = ({
   meal,
   mealType,
+  mealPlanId,
+  mealIndex,
 }) => {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
+  const utils = api.useUtils();
   const { getUserProfile } = useStorage();
 
   const regenerateMealMutation = api.meal.regenerateMeal.useMutation({
-    // onSuccess: (newMeal: Meal) => {
-    //   console.log('Regenerate meal success:', newMeal);
-      
-    //   // Update meal plan in storage
-    //   const mealPlan = getMealPlanById(mealPlanId);
-    //   console.log('Current meal plan:', mealPlan);
-      
-    //   if (mealPlan) {
-    //     const updatedMealPlan = {
-    //       ...mealPlan,
-    //       menu: {
-    //         ...mealPlan.menu,
-    //         [mealType]: mealPlan.menu[mealType].map(m => 
-    //           m.name === meal.name ? newMeal : m
-    //         )
-    //       }
-    //     };
-    //     console.log('Updating meal plan with:', updatedMealPlan);
-    //     updateMealPlan(mealPlanId, updatedMealPlan);
-        
-    //     // Verify the update
-    //     const updatedPlan = getMealPlanById(mealPlanId);
-    //     console.log('Verified updated meal plan:', updatedPlan);
-    //   } else {
-    //     console.error('Meal plan not found:', mealPlanId);
-    //   }
-
-    //   onMealUpdated?.(newMeal);
-    //   toast({
-    //     title: "Блюдо обновлено",
-    //     description: `Новое блюдо: ${newMeal.name}`,
-    //   });
-    // },
     onError: (error) => {
       console.error('Regenerate meal error:', error);
       toast({
@@ -86,6 +57,8 @@ const MealCard: React.FC<MealCardProps> = ({
       
       await regenerateMealMutation.mutateAsync({
         mealType,
+        mealPlanId,
+        mealIndex,
         preferences: { 
           cuisine: undefined,
           dietaryRestrictions: []
@@ -99,6 +72,7 @@ const MealCard: React.FC<MealCardProps> = ({
           activityLevel: userProfile?.activityLevel || 'sedentary'
         },
       });
+      utils.meal.getMealPlan.invalidate({ id: mealPlanId });
     } catch (error) {
       console.error('Error regenerating meal:', error);
     }

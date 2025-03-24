@@ -21,7 +21,8 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import MealCard from './MealCard';
-import { Meal, MealType, MealPlan, WeeklyPlan } from '@/types';
+import { Meal, MealType, WeeklyPlan } from '@/types';
+import { MealPlan } from '@/schemas/meal';
 
 interface WeeklyPlanViewProps {
   mealPlan: MealPlan;
@@ -176,6 +177,9 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                         meal={currentPlan.days[day][mealType] || {}}
                         mealType={mealType}
                         mealPlanId={mealPlan.id || ''}
+                        mealIndex={mealPlan.menu[mealType]?.findIndex(
+                          (m: Meal) => m.name === currentPlan.days[day]?.[mealType]?.name
+                        ) || 0}
                         onMealUpdated={(updatedMeal) => {
                           setCurrentPlan(prev => ({
                             ...prev,

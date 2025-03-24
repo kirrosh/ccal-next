@@ -24,6 +24,7 @@ export default function MealCategory({ title, icon, meals, mealType, mealPlanId 
             meal={meal}
             mealType={mealType}
             mealPlanId={mealPlanId}
+            mealIndex={index}
             onMealUpdated={(meal) => {
               console.log(meal);
             }}

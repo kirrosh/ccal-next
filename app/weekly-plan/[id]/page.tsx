@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
-import { MealPlan, WeeklyPlan } from '@/types';
+import {  WeeklyPlan } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
+import { MealPlan } from '@/schemas/meal';
 
 export default function WeeklyPlanPage() {
   const router = useRouter();

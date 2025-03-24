@@ -123,9 +123,11 @@ export const mealRouter = router({
         cuisine: z.string().optional(),
         dietaryRestrictions: z.array(z.string()).optional()
       }),
-      mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snacks'])
+      mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snacks']),
+      mealPlanId: z.string(),
+      mealIndex: z.number()
     }))
-    .mutation(async ({ input }): Promise<any[]> => {
+    .mutation(async ({ ctx, input }): Promise<any[]> => {
       let minCalories = 0;
       let maxCalories = 0;
       
@@ -162,7 +164,45 @@ export const mealRouter = router({
       };
 
       const newMeal = await regenerateMeal(params);
-      return newMeal;
+
+      // Update the meal in the database
+      try {
+        const mealPlan = await ctx.prisma.mealplans.findUnique({
+          where: { id: input.mealPlanId }
+        });
+
+        if (!mealPlan) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Meal plan not found',
+          });
+        }
+
+        // Create a new menu object with the updated meal at the specific index
+        const updatedMenu = {
+          ...mealPlan.menu,
+          [input.mealType]: mealPlan.menu[input.mealType].map((meal, index) => 
+            (index === input.mealIndex) ? newMeal || meal : meal
+          )
+        };
+
+        console.log('Updated menu:', updatedMenu, input.mealIndex);
+
+        // Update the meal plan with the new menu
+        const updatedMealPlan = await ctx.prisma.mealplans.update({
+          where: { id: input.mealPlanId },
+          data: { menu: updatedMenu }
+        });
+
+        return newMeal;
+      } catch (error) {
+        console.error('Error updating meal in database:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update meal in database',
+          cause: error,
+        });
+      }
     }),
 
   saveMealPlan: publicProcedure
