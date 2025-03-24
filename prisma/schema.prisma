@@ -36,6 +36,13 @@ type Menu {
   snacks    MenuItem[]
 }
 
+type WeeklyPlanDay {
+  breakfast MenuItem
+  lunch     MenuItem
+  dinner    MenuItem
+  snacks    MenuItem
+}
+
 model mealplans {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
   v                 Int      @map("__v")
@@ -56,4 +63,16 @@ model users {
   createdAt DateTime @db.Date
   email     String   @unique(map: "email_1")
   name      String
+}
+
+model weeklyplans {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  v           Int      @map("__v")
+  userId      String
+  mealPlanId  String
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  days        WeeklyPlanDay[]
+  createdAt   DateTime @db.Date
+  updatedAt   DateTime @db.Date
 }

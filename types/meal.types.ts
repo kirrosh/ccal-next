@@ -1,33 +1,6 @@
 import { z } from "zod";
 import { mealPlanSchema } from '@/schemas/meal';
-
-// Базовые типы
-export type DishType = "homemade" | "readymade";
-export type MealType = "breakfast" | "lunch" | "dinner" | "snacks";
-export type Goal = "weight_loss" | "muscle_gain" | "maintenance";
-
-// Типы для ингредиентов и нутриентов
-export interface Ingredient {
-  name: string;
-  amount: number;
-  unit: string;
-}
-
-export interface Nutrients {
-  calories: number;
-  protein: number;
-  fats: number;
-  carbs: number;
-}
-
-// Тип для одного блюда
-export interface Meal {
-  name: string;
-  dishType: DishType;
-  ingredients: Ingredient[];
-  nutrients: Nutrients;
-  servingSize: number;
-}
+import { DishType, MealType, Goal, Ingredient, Nutrients, Meal } from './base.types';
 
 // Тип для меню на день
 export interface DailyMenu {

@@ -1,55 +1,37 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
-import {  WeeklyPlan } from '@/types';
-import { useStorage } from '@/hooks/useStorage';
+import { WeeklyPlan, MealType, Meal } from '@/types';
 import { MealPlan } from '@/schemas/meal';
+import { useStorage } from '@/hooks/useStorage';
+import { api } from '@/trpc/react';
+
+const DAYS_OF_WEEK = ['День 1', 'День 2', 'День 3', 'День 4', 'День 5', 'День 6', 'День 7'];
 
 export default function WeeklyPlanPage() {
   const router = useRouter();
   const { 
     deleteWeeklyPlan,
     addWeeklyPlan,
-    updateWeeklyPlan 
+    updateWeeklyPlan,
+    // getWeeklyPlanQuery
   } = useStorage();
-  const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
-  const [weeklyPlan, setWeeklyPlan] = useState<WeeklyPlan | null>(null);
-  const [loading, setLoading] = useState(true);
+  const params = useParams();
   const [error, setError] = useState('');
 
-  // useEffect(() => {
-  //   const id = params.id as string;
-    
-  //   try {
-  //     const foundPlan = getMealPlanById(id);
-      
-  //     if (foundPlan) {
-  //       setMealPlan(foundPlan);
-        
-  //       // Check if there's a weekly plan based on this meal plan
-  //       const foundWeeklyPlan = getWeeklyPlanByMealPlanId(id);
-  //       if (foundWeeklyPlan) {
-  //         setWeeklyPlan(foundWeeklyPlan);
-  //       }
-  //     } else {
-  //       setError('Рацион не найден');
-  //     }
-  //   } catch (err) {
-  //     console.error('Error loading meal plan:', err);
-  //     setError('Ошибка при загрузке рациона');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, [params.id]);
+  const id = params.id as string;
 
-  const handleDeleteWeeklyPlan = () => {
+  const { data: mealPlan, isLoading: mealPlanLoading, error: mealPlanError } = api.meal.getMealPlan.useQuery({ id: id });
+  const { data: weeklyPlan, isLoading: weeklyPlanLoading } = api.weekly.getWeeklyPlanByMealPlanId.useQuery({ mealPlanId: id });
+
+  const handleDeleteWeeklyPlan = async () => {
     if (!weeklyPlan) return;
     
     if (confirm('Вы уверены, что хотите удалить недельный план?')) {
       try {
-        deleteWeeklyPlan(weeklyPlan.id);
+        await deleteWeeklyPlan(weeklyPlan.id);
         router.push('/');
       } catch (err) {
         console.error('Error deleting weekly plan:', err);
@@ -58,46 +40,56 @@ export default function WeeklyPlanPage() {
     }
   };
 
-  const handleCreateWeeklyPlan = () => {
+  const handleCreateWeeklyPlan = async () => {
     if (!mealPlan) return;
 
     try {
+      const startDate = new Date();
+      const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const now = new Date();
+
+      // Convert days object to array format
+      const daysArray = DAYS_OF_WEEK.map((day: string) => ({
+        breakfast: mealPlan.menu.breakfast[0] || null,
+        lunch: mealPlan.menu.lunch[0] || null,
+        dinner: mealPlan.menu.dinner[0] || null,
+        snacks: mealPlan.menu.snacks[0] || null
+      }));
+
       const newWeeklyPlan: WeeklyPlan = {
         id: crypto.randomUUID(),
         userId: mealPlan.userId,
         mealPlanId: mealPlan.id || "",
-        startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        days: {},
-        mealPlans: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        days: daysArray,
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+        v: 0
       };
 
-      addWeeklyPlan(newWeeklyPlan);
-      setWeeklyPlan(newWeeklyPlan);
+      await addWeeklyPlan(newWeeklyPlan);
     } catch (err) {
       console.error('Error creating weekly plan:', err);
       setError('Ошибка при создании недельного плана');
     }
   };
 
-  const handleUpdateWeeklyPlan = (updatedPlan: WeeklyPlan) => {
+  const handleUpdateWeeklyPlan = async (updatedPlan: WeeklyPlan) => {
     try {
-      updateWeeklyPlan(updatedPlan.id, updatedPlan);
-      setWeeklyPlan(updatedPlan);
+      await updateWeeklyPlan(updatedPlan.id, updatedPlan);
     } catch (err) {
       console.error('Error updating weekly plan:', err);
       setError('Ошибка при обновлении недельного плана');
     }
   };
 
-  if (loading) {
+  if (mealPlanLoading || weeklyPlanLoading) {
     return <div>Загрузка...</div>;
   }
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
+  if (error || mealPlanError) {
+    return <div className="text-red-500">{error || 'Ошибка при загрузке данных'}</div>;
   }
 
   if (!mealPlan) {
@@ -129,8 +121,8 @@ export default function WeeklyPlanPage() {
 
       {weeklyPlan ? (
         <WeeklyPlanView
-          weeklyPlan={weeklyPlan}
-          mealPlan={mealPlan}
+          weeklyPlan={weeklyPlan as any}
+          mealPlan={mealPlan as MealPlan}
           onSave={handleUpdateWeeklyPlan}
         />
       ) : (

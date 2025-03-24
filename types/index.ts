@@ -1,3 +1,4 @@
+export * from './base.types';
 export * from './meal.types';
 export * from './user.types';
 export * from './weekly.types';
@@ -20,13 +21,14 @@ export interface Nutrients {
 export interface Meal {
   id?: string;
   name: string;
-  dishType: 'homemade' | 'readymade';
+  dishType: 'homemade' | 'readymade' | string
   ingredients: Ingredient[];
   nutrients: Nutrients;
   servingSize: number;
 }
 
 export interface UserProfile {
+  id: string;
   gender: 'male' | 'female';
   age: number;
   height: number;
@@ -51,4 +53,21 @@ export const activityMultipliers = {
   moderate: 1.55,
   active: 1.725,
   very_active: 1.9,
-}; 
+};
+
+export interface WeeklyPlan {
+  id: string;
+  userId: string;
+  mealPlanId: string;
+  startDate: string;
+  endDate: string;
+  days: Array<{
+    breakfast: Meal;
+    lunch: Meal;
+    dinner: Meal;
+    snacks: Meal;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+  v: number;
+} 
