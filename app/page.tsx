@@ -36,27 +36,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <Link href="/" className="text-xl font-bold text-primary">CCAL</Link>
-            </div>
-            <nav className="flex space-x-4">
-              <Link href="/generate" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                Создать рацион
-              </Link>
-              <Link href="/profile" className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">
-                Мой профиль
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
+    
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Добро пожаловать в CCAL</h1>
@@ -84,7 +64,7 @@ export default function Home() {
                   {mealPlans.map((plan) => (
                     <div key={plan.id} className="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col h-full">
                       <div className="flex justify-between items-start">
-                        <h3 className="text-lg font-medium mb-2">Рацион питания</h3>
+                        <h3 className="text-lg font-medium mb-2">{plan.name}</h3>
                         <button 
                           onClick={() => handleDeleteMealPlan(plan.id)}
                           className="text-red-500 hover:text-red-700 focus:outline-none" 
@@ -130,15 +110,5 @@ export default function Home() {
           </div>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-center text-sm text-gray-500">
-            <p>© 2023 CCAL. Все права защищены.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
   );
 }

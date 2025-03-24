@@ -59,20 +59,6 @@ export default function MealPlanPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-4">
-              <Link href="/" className="text-xl font-bold text-primary">CCAL</Link>
-              <Link href="/generate" className="text-sm font-medium text-gray-700 hover:text-primary">
-                Создать новый рацион
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-      
       {/* Main content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {isLoading ? (
@@ -161,15 +147,7 @@ export default function MealPlanPage() {
           </>
         )}
       </main>
-      
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-center text-sm text-gray-500">
-            <p>© 2025 CCAL. Все права защищены.</p>
-          </div>
-        </div>
-      </footer>
+    
     </div>
   );
 } 
