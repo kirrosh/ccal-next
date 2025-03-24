@@ -64,7 +64,7 @@ export default function WeeklyPlanPage() {
       const newWeeklyPlan: WeeklyPlan = {
         id: crypto.randomUUID(),
         userId: mealPlan.userId,
-        mealPlanId: mealPlan.id,
+        mealPlanId: mealPlan.id || "",
         startDate: new Date().toISOString(),
         endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         days: {},

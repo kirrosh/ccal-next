@@ -39,6 +39,7 @@ type Menu {
 model mealplans {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
   v                 Int      @map("__v")
+  name              String   @default("Новый рацион")
   allergies         String[]
   availableProducts String[]
   createdAt         DateTime @db.Date

@@ -4,20 +4,27 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MealPlanView from '@/components/MealPlanView';
-
 import { api } from '@/trpc/react';
 
 export default function MealPlanPage() {
   const params = useParams();
-  // const router = useRouter();
-  // const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
-  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState('');
   const id = params.id as string;
+  const utils = api.useUtils();
 
-  const { data: mealPlan, isLoading } = api.meal.getMealPlan.useQuery({ id });
-  console.log(mealPlan)
-
+  const { data: mealPlan, isLoading} = api.meal.getMealPlan.useQuery({ id });
+  const updateNameMutation = api.meal.updateMealPlanName.useMutation({
+    onSuccess: () => {
+      utils.meal.getMealPlan.invalidate({ id })
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      console.error('Error updating name:', error);
+      setError('Ошибка при обновлении имени рациона');
+    }
+  });
 
   const handleDelete = () => {
     if (mealPlan && confirm('Вы уверены, что хотите удалить этот рацион?')) {
@@ -29,6 +36,25 @@ export default function MealPlanPage() {
         alert('Ошибка при удалении рациона');
       }
     }
+  };
+
+  const handleNameEdit = () => {
+    if (mealPlan) {
+      setEditedName(mealPlan.name);
+      setIsEditing(true);
+    }
+  };
+
+  const handleNameSave = () => {
+    if (mealPlan && editedName.trim()) {
+      updateNameMutation.mutate({ id: mealPlan.id, name: editedName.trim() });
+    }
+    setIsEditing(false);
+  };
+
+  const handleNameCancel = () => {
+    setIsEditing(false);
+    setEditedName('');
   };
 
   return (
@@ -73,7 +99,43 @@ export default function MealPlanPage() {
             <div className="bg-white shadow sm:rounded-lg p-6 mb-8">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                 <div>
-                  <h1 className="text-2xl font-bold mb-3">Рацион питания</h1>
+                  {isEditing ? (
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        className="text-2xl font-bold border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleNameSave();
+                          if (e.key === 'Escape') handleNameCancel();
+                        }}
+                      />
+                      <button
+                        onClick={handleNameSave}
+                        className="text-sm text-green-600 hover:text-green-700"
+                      >
+                        Сохранить
+                      </button>
+                      <button
+                        onClick={handleNameCancel}
+                        className="text-sm text-gray-600 hover:text-gray-700"
+                      >
+                        Отмена
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <h1 className="text-2xl font-bold">{mealPlan.name}</h1>
+                      <button
+                        onClick={handleNameEdit}
+                        className="text-sm text-gray-500 hover:text-gray-700"
+                      >
+                        ✎
+                      </button>
+                    </div>
+                  )}
                   <p className="text-gray-600">
                     Создан: {new Date(mealPlan.createdAt).toLocaleString()}
                   </p>

@@ -252,6 +252,40 @@ export const mealRouter = router({
         });
       }
     }),
+
+  updateMealPlanName: publicProcedure
+    .input(z.object({
+      id: z.string(),
+      name: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const updatedPlan = await ctx.prisma.mealplans.update({
+          where: { id: input.id },
+          data: { name: input.name }
+        });
+        
+        if (!updatedPlan) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Meal plan not found',
+          });
+        }
+        
+        console.log('Meal plan name updated successfully:', updatedPlan);
+        return updatedPlan;
+      } catch (error) {
+        console.error('Error updating meal plan name:', error);
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update meal plan name',
+          cause: error,
+        });
+      }
+    }),
 });
 
 // Helper function to format user profile info

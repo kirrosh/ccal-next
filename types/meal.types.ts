@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { mealPlanSchema } from '@/schemas/meal';
 
 // Базовые типы
 export type DishType = "homemade" | "readymade";
@@ -37,17 +38,7 @@ export interface DailyMenu {
 }
 
 // Тип для плана питания
-export interface MealPlan {
-  id: string;
-  userId: string;
-  goal: Goal;
-  preferences: string[];
-  allergies: string[];
-  availableProducts: string[];
-  currentDate: string;
-  createdAt: string;
-  menu: DailyMenu;
-}
+export type MealPlan = z.infer<typeof mealPlanSchema>;
 
 // Zod схемы
 export const ingredientSchema = z.object({
@@ -69,21 +60,4 @@ export const mealSchema = z.object({
   ingredients: z.array(ingredientSchema),
   nutrients: nutrientsSchema,
   servingSize: z.number()
-});
-
-export const mealPlanSchema = z.object({
-  id: z.string().optional(),
-  userId: z.string().describe("ID пользователя"),
-  goal: z.enum(["weight_loss", "muscle_gain", "maintenance"]).describe("Цель питания (похудение, набор массы, поддержание)"),
-  preferences: z.array(z.string()).describe("Предпочтения в еде"),
-  allergies: z.array(z.string()).describe("Аллергены/исключения"),
-  availableProducts: z.array(z.string()).describe("Продукты, которые уже есть в наличии"),
-  currentDate: z.string().describe("Текущая дата для определения сезонных продуктов"),
-  createdAt: z.string().describe("Дата создания плана питания"),
-  menu: z.object({
-    breakfast: z.array(mealSchema).length(5).describe("Список из 5 завтраков на неделю"),
-    lunch: z.array(mealSchema).length(5).describe("Список из 5 обедов на неделю"),
-    dinner: z.array(mealSchema).length(5).describe("Список из 5 ужинов на неделю"),
-    snacks: z.array(mealSchema).length(5).describe("Список из 5 перекусов на неделю"),
-  }).describe("Меню на неделю"),
 }); 

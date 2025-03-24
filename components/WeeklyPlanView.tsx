@@ -45,12 +45,11 @@ const MEAL_ICONS = {
   'dinner': <Moon size={20} />,
   'snacks': <Apple size={20} />
 } as const;
-
 const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, onSave }) => {
   const [currentPlan, setCurrentPlan] = useState<WeeklyPlan>(weeklyPlan || {
     id: crypto.randomUUID(),
     userId: mealPlan.userId,
-    mealPlanId: mealPlan.id,
+    mealPlanId: mealPlan.id || "",
     startDate: new Date().toISOString(),
     endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     days: {},
@@ -174,9 +173,9 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                   {currentPlan.days[day] && currentPlan.days[day][mealType] && (
                     <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
                       <MealCard
-                        meal={currentPlan.days[day][mealType]}
+                        meal={currentPlan.days[day][mealType] || {}}
                         mealType={mealType}
-                        mealPlanId={mealPlan.id}
+                        mealPlanId={mealPlan.id || ''}
                         onMealUpdated={(updatedMeal) => {
                           setCurrentPlan(prev => ({
                             ...prev,

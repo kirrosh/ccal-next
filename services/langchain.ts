@@ -1,7 +1,7 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { generateMealPlanPrompt } from "@/prompts/generateMealPlan";
 import { regenerateMealPrompt } from "@/prompts/regenerateMeal";
-import { mealPlan, meal } from "@/schemas/meal";
+import { mealPlanSchema, mealSchema } from "@/schemas/meal";
 
 // Интерфейс для начальных параметров функции generateMealPlan
 interface MealPlanParams {
@@ -59,10 +59,10 @@ const llm = new ChatGoogleGenerativeAI({
 });
 
 // Цепочка для генерации полного плана питания
-const mealPlanChain = generateMealPlanPrompt.pipe(llm.withStructuredOutput(mealPlan));
+const mealPlanChain = generateMealPlanPrompt.pipe(llm.withStructuredOutput(mealPlanSchema));
 
 // Цепочка для регенерации одного блюда
-const regenerateMealChain = regenerateMealPrompt.pipe(llm.withStructuredOutput(meal));
+const regenerateMealChain = regenerateMealPrompt.pipe(llm.withStructuredOutput(mealSchema));
 
 // Функция генерации полного плана питания
 export async function generateMealPlan(params: MealPlanParams): Promise<any> {
