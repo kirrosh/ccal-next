@@ -1,40 +1,11 @@
-version: '3.8'
+version: '3.7'
 services:
-  mongo1:
-    image: mongo:latest
+  mongodb_container:
+    # This image automatically creates a replica set required for transactions
+    image: prismagraphql/mongo-single-replica:4.4.3-bionic
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: prisma
+      INIT_WAIT_SEC: 3
     ports:
-      - "27017:27017"
-    command: mongod --replSet myReplicaSetName --bind_ip_all
-    volumes:
-      - mongodb_data1:/data/db
-    networks:
-      - mongoCluster
-
-  mongo2:
-    image: mongo:latest
-    ports:
-      - "27018:27017"
-    command: mongod --replSet myReplicaSetName --bind_ip_all
-    volumes:
-      - mongodb_data2:/data/db
-    networks:
-      - mongoCluster
-
-  mongo3:
-    image: mongo:latest
-    ports:
-      - "27019:27017"
-    command: mongod --replSet myReplicaSetName --bind_ip_all
-    volumes:
-      - mongodb_data3:/data/db
-    networks:
-      - mongoCluster
-
-volumes:
-  mongodb_data1:
-  mongodb_data2:
-  mongodb_data3:
-
-networks:
-  mongoCluster:
-    driver: bridge 
+      - 27017:27017
