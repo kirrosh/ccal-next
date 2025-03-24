@@ -1,20 +1,20 @@
 // Sample meal plan data based on the schema
 const sampleMealPlan = {
-  userId: "user123",
-  goal: "weight_loss",
-  preferences: ["Средиземноморская кухня", "Низкокалорийные блюда"],
-  allergies: ["Орехи", "Лактоза"],
-  availableProducts: ["Куриное филе", "Овощи", "Рис", "Гречка"],
-  currentDate: "2024-03-21",
+  userId: 'user123',
+  goal: 'weight_loss',
+  preferences: ['Средиземноморская кухня', 'Низкокалорийные блюда'],
+  allergies: ['Орехи', 'Лактоза'],
+  availableProducts: ['Куриное филе', 'Овощи', 'Рис', 'Гречка'],
+  currentDate: '2024-03-21',
   menu: {
     breakfast: [
       {
-        name: "Овсянка с ягодами",
-        dishType: "homemade",
+        name: 'Овсянка с ягодами',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Овсяные хлопья", amount: 50, unit: "г" },
-          { name: "Ягоды (замороженные)", amount: 30, unit: "г" },
-          { name: "Мед", amount: 5, unit: "г" },
+          { name: 'Овсяные хлопья', amount: 50, unit: 'г' },
+          { name: 'Ягоды (замороженные)', amount: 30, unit: 'г' },
+          { name: 'Мед', amount: 5, unit: 'г' },
         ],
         nutrients: {
           calories: 220,
@@ -24,12 +24,12 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Яичница с овощами",
-        dishType: "homemade",
+        name: 'Яичница с овощами',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Яйца", amount: 2, unit: "шт" },
-          { name: "Помидоры", amount: 50, unit: "г" },
-          { name: "Шпинат", amount: 20, unit: "г" },
+          { name: 'Яйца', amount: 2, unit: 'шт' },
+          { name: 'Помидоры', amount: 50, unit: 'г' },
+          { name: 'Шпинат', amount: 20, unit: 'г' },
         ],
         nutrients: {
           calories: 180,
@@ -39,12 +39,12 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Творожная запеканка",
-        dishType: "homemade",
+        name: 'Творожная запеканка',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Творог 2%", amount: 150, unit: "г" },
-          { name: "Яйцо", amount: 1, unit: "шт" },
-          { name: "Мед", amount: 10, unit: "г" },
+          { name: 'Творог 2%', amount: 150, unit: 'г' },
+          { name: 'Яйцо', amount: 1, unit: 'шт' },
+          { name: 'Мед', amount: 10, unit: 'г' },
         ],
         nutrients: {
           calories: 250,
@@ -54,12 +54,12 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Гранола с йогуртом",
-        dishType: "readymade",
+        name: 'Гранола с йогуртом',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Гранола без орехов", amount: 40, unit: "г" },
-          { name: "Йогурт без лактозы", amount: 150, unit: "г" },
-          { name: "Банан", amount: 0.5, unit: "шт" },
+          { name: 'Гранола без орехов', amount: 40, unit: 'г' },
+          { name: 'Йогурт без лактозы', amount: 150, unit: 'г' },
+          { name: 'Банан', amount: 0.5, unit: 'шт' },
         ],
         nutrients: {
           calories: 230,
@@ -69,12 +69,12 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Тост с авокадо и яйцом",
-        dishType: "readymade",
+        name: 'Тост с авокадо и яйцом',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Хлеб цельнозерновой", amount: 40, unit: "г" },
-          { name: "Авокадо", amount: 50, unit: "г" },
-          { name: "Яйцо", amount: 1, unit: "шт" },
+          { name: 'Хлеб цельнозерновой', amount: 40, unit: 'г' },
+          { name: 'Авокадо', amount: 50, unit: 'г' },
+          { name: 'Яйцо', amount: 1, unit: 'шт' },
         ],
         nutrients: {
           calories: 240,
@@ -86,13 +86,13 @@ const sampleMealPlan = {
     ],
     lunch: [
       {
-        name: "Куриный суп с овощами",
-        dishType: "homemade",
+        name: 'Куриный суп с овощами',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Куриное филе", amount: 100, unit: "г" },
-          { name: "Морковь", amount: 50, unit: "г" },
-          { name: "Лук", amount: 30, unit: "г" },
-          { name: "Сельдерей", amount: 20, unit: "г" },
+          { name: 'Куриное филе', amount: 100, unit: 'г' },
+          { name: 'Морковь', amount: 50, unit: 'г' },
+          { name: 'Лук', amount: 30, unit: 'г' },
+          { name: 'Сельдерей', amount: 20, unit: 'г' },
         ],
         nutrients: {
           calories: 190,
@@ -102,14 +102,14 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Греческий салат",
-        dishType: "homemade",
+        name: 'Греческий салат',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Огурцы", amount: 80, unit: "г" },
-          { name: "Помидоры", amount: 80, unit: "г" },
-          { name: "Оливки", amount: 20, unit: "г" },
-          { name: "Сыр фета", amount: 40, unit: "г" },
-          { name: "Оливковое масло", amount: 10, unit: "мл" },
+          { name: 'Огурцы', amount: 80, unit: 'г' },
+          { name: 'Помидоры', amount: 80, unit: 'г' },
+          { name: 'Оливки', amount: 20, unit: 'г' },
+          { name: 'Сыр фета', amount: 40, unit: 'г' },
+          { name: 'Оливковое масло', amount: 10, unit: 'мл' },
         ],
         nutrients: {
           calories: 180,
@@ -119,13 +119,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Рис с овощами",
-        dishType: "homemade",
+        name: 'Рис с овощами',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Рис бурый", amount: 70, unit: "г" },
-          { name: "Брокколи", amount: 80, unit: "г" },
-          { name: "Морковь", amount: 50, unit: "г" },
-          { name: "Соевый соус", amount: 10, unit: "мл" },
+          { name: 'Рис бурый', amount: 70, unit: 'г' },
+          { name: 'Брокколи', amount: 80, unit: 'г' },
+          { name: 'Морковь', amount: 50, unit: 'г' },
+          { name: 'Соевый соус', amount: 10, unit: 'мл' },
         ],
         nutrients: {
           calories: 230,
@@ -135,13 +135,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Куриная грудка с гречкой",
-        dishType: "homemade",
+        name: 'Куриная грудка с гречкой',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Куриная грудка", amount: 120, unit: "г" },
-          { name: "Гречка", amount: 70, unit: "г" },
-          { name: "Чеснок", amount: 5, unit: "г" },
-          { name: "Оливковое масло", amount: 5, unit: "мл" },
+          { name: 'Куриная грудка', amount: 120, unit: 'г' },
+          { name: 'Гречка', amount: 70, unit: 'г' },
+          { name: 'Чеснок', amount: 5, unit: 'г' },
+          { name: 'Оливковое масло', amount: 5, unit: 'мл' },
         ],
         nutrients: {
           calories: 320,
@@ -151,13 +151,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Суп-пюре из чечевицы",
-        dishType: "readymade",
+        name: 'Суп-пюре из чечевицы',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Чечевица", amount: 60, unit: "г" },
-          { name: "Лук", amount: 30, unit: "г" },
-          { name: "Морковь", amount: 30, unit: "г" },
-          { name: "Томатная паста", amount: 10, unit: "г" },
+          { name: 'Чечевица', amount: 60, unit: 'г' },
+          { name: 'Лук', amount: 30, unit: 'г' },
+          { name: 'Морковь', amount: 30, unit: 'г' },
+          { name: 'Томатная паста', amount: 10, unit: 'г' },
         ],
         nutrients: {
           calories: 210,
@@ -169,13 +169,13 @@ const sampleMealPlan = {
     ],
     dinner: [
       {
-        name: "Запеченная рыба с овощами",
-        dishType: "homemade",
+        name: 'Запеченная рыба с овощами',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Филе трески", amount: 150, unit: "г" },
-          { name: "Кабачки", amount: 100, unit: "г" },
-          { name: "Болгарский перец", amount: 70, unit: "г" },
-          { name: "Лимон", amount: 10, unit: "г" },
+          { name: 'Филе трески', amount: 150, unit: 'г' },
+          { name: 'Кабачки', amount: 100, unit: 'г' },
+          { name: 'Болгарский перец', amount: 70, unit: 'г' },
+          { name: 'Лимон', amount: 10, unit: 'г' },
         ],
         nutrients: {
           calories: 200,
@@ -185,13 +185,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Тушеная индейка с овощами",
-        dishType: "homemade",
+        name: 'Тушеная индейка с овощами',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Филе индейки", amount: 120, unit: "г" },
-          { name: "Цукини", amount: 80, unit: "г" },
-          { name: "Баклажан", amount: 70, unit: "г" },
-          { name: "Томаты", amount: 50, unit: "г" },
+          { name: 'Филе индейки', amount: 120, unit: 'г' },
+          { name: 'Цукини', amount: 80, unit: 'г' },
+          { name: 'Баклажан', amount: 70, unit: 'г' },
+          { name: 'Томаты', amount: 50, unit: 'г' },
         ],
         nutrients: {
           calories: 210,
@@ -201,13 +201,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Овощная фриттата",
-        dishType: "homemade",
+        name: 'Овощная фриттата',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Яйца", amount: 3, unit: "шт" },
-          { name: "Шпинат", amount: 50, unit: "г" },
-          { name: "Грибы", amount: 50, unit: "г" },
-          { name: "Томаты черри", amount: 40, unit: "г" },
+          { name: 'Яйца', amount: 3, unit: 'шт' },
+          { name: 'Шпинат', amount: 50, unit: 'г' },
+          { name: 'Грибы', amount: 50, unit: 'г' },
+          { name: 'Томаты черри', amount: 40, unit: 'г' },
         ],
         nutrients: {
           calories: 240,
@@ -217,13 +217,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Котлеты из индейки с пюре",
-        dishType: "readymade",
+        name: 'Котлеты из индейки с пюре',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Фарш из индейки", amount: 120, unit: "г" },
-          { name: "Цветная капуста", amount: 150, unit: "г" },
-          { name: "Лук", amount: 20, unit: "г" },
-          { name: "Яйцо", amount: 0.5, unit: "шт" },
+          { name: 'Фарш из индейки', amount: 120, unit: 'г' },
+          { name: 'Цветная капуста', amount: 150, unit: 'г' },
+          { name: 'Лук', amount: 20, unit: 'г' },
+          { name: 'Яйцо', amount: 0.5, unit: 'шт' },
         ],
         nutrients: {
           calories: 230,
@@ -233,13 +233,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Овощная лазанья",
-        dishType: "readymade",
+        name: 'Овощная лазанья',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Лазанья (листы)", amount: 80, unit: "г" },
-          { name: "Шпинат", amount: 70, unit: "г" },
-          { name: "Томатный соус", amount: 50, unit: "г" },
-          { name: "Сыр без лактозы", amount: 30, unit: "г" },
+          { name: 'Лазанья (листы)', amount: 80, unit: 'г' },
+          { name: 'Шпинат', amount: 70, unit: 'г' },
+          { name: 'Томатный соус', amount: 50, unit: 'г' },
+          { name: 'Сыр без лактозы', amount: 30, unit: 'г' },
         ],
         nutrients: {
           calories: 280,
@@ -251,11 +251,11 @@ const sampleMealPlan = {
     ],
     snacks: [
       {
-        name: "Йогурт с фруктами",
-        dishType: "readymade",
+        name: 'Йогурт с фруктами',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Натуральный йогурт", amount: 150, unit: "г" },
-          { name: "Яблоко", amount: 1, unit: "шт" },
+          { name: 'Натуральный йогурт', amount: 150, unit: 'г' },
+          { name: 'Яблоко', amount: 1, unit: 'шт' },
         ],
         nutrients: {
           calories: 120,
@@ -265,11 +265,11 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Творог с ягодами",
-        dishType: "homemade",
+        name: 'Творог с ягодами',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Творог 0%", amount: 100, unit: "г" },
-          { name: "Ягоды", amount: 50, unit: "г" },
+          { name: 'Творог 0%', amount: 100, unit: 'г' },
+          { name: 'Ягоды', amount: 50, unit: 'г' },
         ],
         nutrients: {
           calories: 110,
@@ -279,13 +279,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Смузи с шпинатом",
-        dishType: "homemade",
+        name: 'Смузи с шпинатом',
+        dishType: 'homemade',
         ingredients: [
-          { name: "Шпинат", amount: 30, unit: "г" },
-          { name: "Банан", amount: 0.5, unit: "шт" },
-          { name: "Яблоко", amount: 0.5, unit: "шт" },
-          { name: "Вода", amount: 150, unit: "мл" },
+          { name: 'Шпинат', amount: 30, unit: 'г' },
+          { name: 'Банан', amount: 0.5, unit: 'шт' },
+          { name: 'Яблоко', amount: 0.5, unit: 'шт' },
+          { name: 'Вода', amount: 150, unit: 'мл' },
         ],
         nutrients: {
           calories: 90,
@@ -295,12 +295,12 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Хумус с овощами",
-        dishType: "readymade",
+        name: 'Хумус с овощами',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Хумус", amount: 50, unit: "г" },
-          { name: "Морковь", amount: 50, unit: "г" },
-          { name: "Огурец", amount: 50, unit: "г" },
+          { name: 'Хумус', amount: 50, unit: 'г' },
+          { name: 'Морковь', amount: 50, unit: 'г' },
+          { name: 'Огурец', amount: 50, unit: 'г' },
         ],
         nutrients: {
           calories: 150,
@@ -310,13 +310,13 @@ const sampleMealPlan = {
         },
       },
       {
-        name: "Фруктовый салат",
-        dishType: "readymade",
+        name: 'Фруктовый салат',
+        dishType: 'readymade',
         ingredients: [
-          { name: "Яблоко", amount: 0.5, unit: "шт" },
-          { name: "Груша", amount: 0.5, unit: "шт" },
-          { name: "Киви", amount: 1, unit: "шт" },
-          { name: "Апельсин", amount: 0.5, unit: "шт" },
+          { name: 'Яблоко', amount: 0.5, unit: 'шт' },
+          { name: 'Груша', amount: 0.5, unit: 'шт' },
+          { name: 'Киви', amount: 1, unit: 'шт' },
+          { name: 'Апельсин', amount: 0.5, unit: 'шт' },
         ],
         nutrients: {
           calories: 140,
@@ -329,4 +329,4 @@ const sampleMealPlan = {
   },
 };
 
-export default sampleMealPlan; 
+export default sampleMealPlan;

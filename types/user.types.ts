@@ -1,8 +1,8 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 // Базовые типы
-export type Gender = "male" | "female";
-export type ActivityLevel = "sedentary" | "light" | "moderate" | "active" | "very_active";
+export type Gender = 'male' | 'female';
+export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
 
 // Интерфейс профиля пользователя
 export interface UserProfile {
@@ -27,10 +27,12 @@ export const activityMultipliers: Record<ActivityLevel, number> = {
 // Zod схема для профиля пользователя
 export const userProfileSchema = z.object({
   id: z.string().optional(),
-  gender: z.enum(["male", "female"]).describe("Пол пользователя"),
-  age: z.number().min(1).max(120).describe("Возраст в годах"),
-  height: z.number().min(50).max(250).describe("Рост в сантиметрах"),
-  weight: z.number().min(20).max(300).describe("Вес в килограммах"),
-  activityLevel: z.enum(["sedentary", "light", "moderate", "active", "very_active"]).describe("Уровень физической активности"),
-  caloriesPerDay: z.number().optional().describe("Рассчитанная суточная норма калорий"),
-}); 
+  gender: z.enum(['male', 'female']).describe('Пол пользователя'),
+  age: z.number().min(1).max(120).describe('Возраст в годах'),
+  height: z.number().min(50).max(250).describe('Рост в сантиметрах'),
+  weight: z.number().min(20).max(300).describe('Вес в килограммах'),
+  activityLevel: z
+    .enum(['sedentary', 'light', 'moderate', 'active', 'very_active'])
+    .describe('Уровень физической активности'),
+  caloriesPerDay: z.number().optional().describe('Рассчитанная суточная норма калорий'),
+});

@@ -9,4 +9,4 @@ export const appRouter = router({
   weekly: weeklyRouter,
 });
 
-export type AppRouter = typeof appRouter; 
+export type AppRouter = typeof appRouter;

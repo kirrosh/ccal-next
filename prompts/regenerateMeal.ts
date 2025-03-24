@@ -1,4 +1,4 @@
-import { PromptTemplate } from "@langchain/core/prompts";
+import { PromptTemplate } from '@langchain/core/prompts';
 
 export const regenerateMealPrompt = PromptTemplate.fromTemplate(
   `
@@ -40,4 +40,4 @@ export const regenerateMealPrompt = PromptTemplate.fromTemplate(
   
   Калорийность для данного приема пищи должна быть в диапазоне: {minCalories}-{maxCalories} ккал
   `
-); 
+);

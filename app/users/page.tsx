@@ -17,19 +17,16 @@ export default function UsersPage() {
       setEmail('');
       getAllUsers.refetch();
     },
-    onError: (error) => {
+    onError: error => {
       console.error(error);
     },
   });
 
   const getAllUsers = api.user.getAll.useQuery();
 
-  const getUserById = api.user.getById.useQuery(
-    userId,
-    { 
-      enabled: !!userId,
-    }
-  );
+  const getUserById = api.user.getById.useQuery(userId, {
+    enabled: !!userId,
+  });
 
   const handleCreateUser = async () => {
     if (!name || !email) {
@@ -47,7 +44,7 @@ export default function UsersPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">MongoDB Test Page</h1>
-      
+
       <div className="grid gap-6">
         <Card>
           <CardHeader>
@@ -58,20 +55,17 @@ export default function UsersPage() {
               <Input
                 placeholder="Name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 disabled={createUser.isPending}
               />
               <Input
                 placeholder="Email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 disabled={createUser.isPending}
               />
-              <Button 
-                onClick={handleCreateUser}
-                disabled={createUser.isPending}
-              >
+              <Button onClick={handleCreateUser} disabled={createUser.isPending}>
                 {createUser.isPending ? 'Creating...' : 'Create User'}
               </Button>
             </div>
@@ -87,7 +81,7 @@ export default function UsersPage() {
               <Input
                 placeholder="User ID"
                 value={userId}
-                onChange={(e) => setUserId(e.target.value)}
+                onChange={e => setUserId(e.target.value)}
                 disabled={getUserById.isLoading}
               />
               {getUserById.isLoading && <p>Loading...</p>}
@@ -111,7 +105,7 @@ export default function UsersPage() {
             )}
             {getAllUsers.data && (
               <div className="space-y-2">
-                {getAllUsers.data.map((user) => (
+                {getAllUsers.data.map(user => (
                   <div key={user.id} className="p-4 bg-gray-100 rounded">
                     <p>Name: {user.name}</p>
                     <p>Email: {user.email}</p>
@@ -125,4 +119,4 @@ export default function UsersPage() {
       </div>
     </div>
   );
-} 
+}

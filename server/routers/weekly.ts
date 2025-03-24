@@ -7,11 +7,13 @@ import { MealType, Meal } from '@/types/base.types';
 const mealSchema = z.object({
   name: z.string(),
   dishType: z.enum(['homemade', 'readymade']),
-  ingredients: z.array(z.object({
-    name: z.string(),
-    amount: z.number(),
-    unit: z.string(),
-  })),
+  ingredients: z.array(
+    z.object({
+      name: z.string(),
+      amount: z.number(),
+      unit: z.string(),
+    })
+  ),
   nutrients: z.object({
     calories: z.number(),
     protein: z.number(),
@@ -27,27 +29,31 @@ const weeklyPlanSchema = z.object({
   mealPlanId: z.string(),
   startDate: z.string(),
   endDate: z.string(),
-  days: z.array(z.object({
-    breakfast: mealSchema,
-    lunch: mealSchema,
-    dinner: mealSchema,
-    snacks: mealSchema
-  })),
+  days: z.array(
+    z.object({
+      breakfast: mealSchema,
+      lunch: mealSchema,
+      dinner: mealSchema,
+      snacks: mealSchema,
+    })
+  ),
   createdAt: z.string(),
   updatedAt: z.string(),
-  v: z.number()
+  v: z.number(),
 });
 
 export const weeklyRouter = router({
   getWeeklyPlans: publicProcedure
-    .input(z.object({
-      userId: z.string(),
-    }))
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       try {
         const weeklyPlans = await ctx.prisma.weeklyplans.findMany({
           where: { userId: input.userId },
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         });
         return weeklyPlans;
       } catch (error) {
@@ -61,13 +67,15 @@ export const weeklyRouter = router({
     }),
 
   getWeeklyPlan: publicProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       try {
         const weeklyPlan = await ctx.prisma.weeklyplans.findUnique({
-          where: { id: input.id }
+          where: { id: input.id },
         });
 
         if (!weeklyPlan) {
@@ -91,40 +99,40 @@ export const weeklyRouter = router({
       }
     }),
 
-  createWeeklyPlan: publicProcedure
-    .input(weeklyPlanSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const weeklyPlan = await ctx.prisma.weeklyplans.create({
-          data: {
-            userId: input.userId,
-            mealPlanId: input.mealPlanId,
-            startDate: new Date(input.startDate),
-            endDate: new Date(input.endDate),
-            days: input.days,
-            createdAt: new Date(input.createdAt),
-            updatedAt: new Date(input.updatedAt),
-            v: 0
-          }
-        });
+  createWeeklyPlan: publicProcedure.input(weeklyPlanSchema).mutation(async ({ ctx, input }) => {
+    try {
+      const weeklyPlan = await ctx.prisma.weeklyplans.create({
+        data: {
+          userId: input.userId,
+          mealPlanId: input.mealPlanId,
+          startDate: new Date(input.startDate),
+          endDate: new Date(input.endDate),
+          days: input.days,
+          createdAt: new Date(input.createdAt),
+          updatedAt: new Date(input.updatedAt),
+          v: 0,
+        },
+      });
 
-        console.log('Weekly plan created successfully:', weeklyPlan);
-        return weeklyPlan;
-      } catch (error) {
-        console.error('Error creating weekly plan:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to create weekly plan',
-          cause: error,
-        });
-      }
-    }),
+      console.log('Weekly plan created successfully:', weeklyPlan);
+      return weeklyPlan;
+    } catch (error) {
+      console.error('Error creating weekly plan:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to create weekly plan',
+        cause: error,
+      });
+    }
+  }),
 
   updateWeeklyPlan: publicProcedure
-    .input(z.object({
-      id: z.string(),
-      plan: weeklyPlanSchema
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        plan: weeklyPlanSchema,
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       try {
         const updatedPlan = await ctx.prisma.weeklyplans.update({
@@ -136,8 +144,8 @@ export const weeklyRouter = router({
             endDate: new Date(input.plan.endDate),
             days: input.plan.days,
             updatedAt: new Date(input.plan.updatedAt),
-            v: 0
-          }
+            v: 0,
+          },
         });
 
         if (!updatedPlan) {
@@ -163,14 +171,16 @@ export const weeklyRouter = router({
     }),
 
   getWeeklyPlanByMealPlanId: publicProcedure
-    .input(z.object({
-      mealPlanId: z.string(),
-    }))
+    .input(
+      z.object({
+        mealPlanId: z.string(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       try {
         const weeklyPlan = await ctx.prisma.weeklyplans.findFirst({
           where: { mealPlanId: input.mealPlanId },
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         });
 
         if (!weeklyPlan) {
@@ -202,13 +212,15 @@ export const weeklyRouter = router({
     }),
 
   deleteWeeklyPlan: publicProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       try {
         const deletedPlan = await ctx.prisma.weeklyplans.delete({
-          where: { id: input.id }
+          where: { id: input.id },
         });
 
         if (!deletedPlan) {
@@ -232,4 +244,4 @@ export const weeklyRouter = router({
         });
       }
     }),
-}); 
+});

@@ -1,6 +1,6 @@
-export type DishType = "homemade" | "readymade";
-export type MealType = "breakfast" | "lunch" | "dinner" | "snacks";
-export type Goal = "weight_loss" | "muscle_gain" | "maintenance";
+export type DishType = 'homemade' | 'readymade';
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snacks';
+export type Goal = 'weight_loss' | 'muscle_gain' | 'maintenance';
 
 export interface Ingredient {
   name: string;
@@ -21,4 +21,4 @@ export interface Meal {
   ingredients: Ingredient[];
   nutrients: Nutrients;
   servingSize: number;
-} 
+}

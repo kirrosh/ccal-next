@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
-import { WeeklyPlan, MealType, Meal } from '@/types';
+import { WeeklyPlan } from '@/types';
 import { MealPlan } from '@/schemas/meal';
-import { useStorage } from '@/hooks/useStorage';
 import { api } from '@/trpc/react';
 import { z } from 'zod';
 
@@ -15,11 +14,13 @@ const DAYS_OF_WEEK = ['День 1', 'День 2', 'День 3', 'День 4', '�
 const mealSchema = z.object({
   name: z.string(),
   dishType: z.enum(['homemade', 'readymade']),
-  ingredients: z.array(z.object({
-    name: z.string(),
-    amount: z.number(),
-    unit: z.string(),
-  })),
+  ingredients: z.array(
+    z.object({
+      name: z.string(),
+      amount: z.number(),
+      unit: z.string(),
+    })
+  ),
   nutrients: z.object({
     calories: z.number(),
     protein: z.number(),
@@ -35,15 +36,17 @@ const weeklyPlanSchema = z.object({
   mealPlanId: z.string(),
   startDate: z.string(),
   endDate: z.string(),
-  days: z.array(z.object({
-    breakfast: mealSchema,
-    lunch: mealSchema,
-    dinner: mealSchema,
-    snacks: mealSchema
-  })),
+  days: z.array(
+    z.object({
+      breakfast: mealSchema,
+      lunch: mealSchema,
+      dinner: mealSchema,
+      snacks: mealSchema,
+    })
+  ),
   createdAt: z.string(),
   updatedAt: z.string(),
-  v: z.number()
+  v: z.number(),
 });
 
 type WeeklyPlanInput = z.infer<typeof weeklyPlanSchema>;
@@ -55,15 +58,20 @@ export default function WeeklyPlanPage() {
 
   const id = params.id as string;
 
-  const { data: mealPlan, isLoading: mealPlanLoading, error: mealPlanError } = api.meal.getMealPlan.useQuery({ id: id });
-  const { data: weeklyPlan, isLoading: weeklyPlanLoading } = api.weekly.getWeeklyPlanByMealPlanId.useQuery({ mealPlanId: id });
+  const {
+    data: mealPlan,
+    isLoading: mealPlanLoading,
+    error: mealPlanError,
+  } = api.meal.getMealPlan.useQuery({ id: id });
+  const { data: weeklyPlan, isLoading: weeklyPlanLoading } =
+    api.weekly.getWeeklyPlanByMealPlanId.useQuery({ mealPlanId: id });
   const deleteWeeklyPlanMutation = api.weekly.deleteWeeklyPlan.useMutation();
   const createWeeklyPlanMutation = api.weekly.createWeeklyPlan.useMutation();
   const updateWeeklyPlanMutation = api.weekly.updateWeeklyPlan.useMutation();
 
   const handleDeleteWeeklyPlan = async () => {
     if (!weeklyPlan) return;
-    
+
     if (confirm('Вы уверены, что хотите удалить недельный план?')) {
       try {
         await deleteWeeklyPlanMutation.mutateAsync({ id: weeklyPlan.id });
@@ -92,41 +100,49 @@ export default function WeeklyPlanPage() {
           calories: 0,
           protein: 0,
           fats: 0,
-          carbs: 0
+          carbs: 0,
         },
-        servingSize: 0
+        servingSize: 0,
       };
 
       // Convert days object to array format and ensure meal types match schema
       const daysArray = DAYS_OF_WEEK.map((day: string) => ({
-        breakfast: mealPlan.menu.breakfast[0] ? {
-          ...mealPlan.menu.breakfast[0],
-          dishType: mealPlan.menu.breakfast[0].dishType as 'homemade' | 'readymade'
-        } : emptyMeal,
-        lunch: mealPlan.menu.lunch[0] ? {
-          ...mealPlan.menu.lunch[0],
-          dishType: mealPlan.menu.lunch[0].dishType as 'homemade' | 'readymade'
-        } : emptyMeal,
-        dinner: mealPlan.menu.dinner[0] ? {
-          ...mealPlan.menu.dinner[0],
-          dishType: mealPlan.menu.dinner[0].dishType as 'homemade' | 'readymade'
-        } : emptyMeal,
-        snacks: mealPlan.menu.snacks[0] ? {
-          ...mealPlan.menu.snacks[0],
-          dishType: mealPlan.menu.snacks[0].dishType as 'homemade' | 'readymade'
-        } : emptyMeal
+        breakfast: mealPlan.menu.breakfast[0]
+          ? {
+              ...mealPlan.menu.breakfast[0],
+              dishType: mealPlan.menu.breakfast[0].dishType as 'homemade' | 'readymade',
+            }
+          : emptyMeal,
+        lunch: mealPlan.menu.lunch[0]
+          ? {
+              ...mealPlan.menu.lunch[0],
+              dishType: mealPlan.menu.lunch[0].dishType as 'homemade' | 'readymade',
+            }
+          : emptyMeal,
+        dinner: mealPlan.menu.dinner[0]
+          ? {
+              ...mealPlan.menu.dinner[0],
+              dishType: mealPlan.menu.dinner[0].dishType as 'homemade' | 'readymade',
+            }
+          : emptyMeal,
+        snacks: mealPlan.menu.snacks[0]
+          ? {
+              ...mealPlan.menu.snacks[0],
+              dishType: mealPlan.menu.snacks[0].dishType as 'homemade' | 'readymade',
+            }
+          : emptyMeal,
       }));
 
       const newWeeklyPlan: WeeklyPlanInput = {
         id: crypto.randomUUID(),
         userId: mealPlan.userId,
-        mealPlanId: mealPlan.id || "",
+        mealPlanId: mealPlan.id || '',
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         days: daysArray,
         createdAt: now.toISOString(),
         updatedAt: now.toISOString(),
-        v: 0
+        v: 0,
       };
 
       await createWeeklyPlanMutation.mutateAsync(newWeeklyPlan);
@@ -147,37 +163,45 @@ export default function WeeklyPlanPage() {
           calories: 0,
           protein: 0,
           fats: 0,
-          carbs: 0
+          carbs: 0,
         },
-        servingSize: 0
+        servingSize: 0,
       };
 
       // Ensure meal types match schema before updating
       const planWithCorrectTypes: WeeklyPlanInput = {
         ...updatedPlan,
         days: updatedPlan.days.map(day => ({
-          breakfast: day.breakfast ? {
-            ...day.breakfast,
-            dishType: day.breakfast.dishType as 'homemade' | 'readymade'
-          } : emptyMeal,
-          lunch: day.lunch ? {
-            ...day.lunch,
-            dishType: day.lunch.dishType as 'homemade' | 'readymade'
-          } : emptyMeal,
-          dinner: day.dinner ? {
-            ...day.dinner,
-            dishType: day.dinner.dishType as 'homemade' | 'readymade'
-          } : emptyMeal,
-          snacks: day.snacks ? {
-            ...day.snacks,
-            dishType: day.snacks.dishType as 'homemade' | 'readymade'
-          } : emptyMeal
-        }))
+          breakfast: day.breakfast
+            ? {
+                ...day.breakfast,
+                dishType: day.breakfast.dishType as 'homemade' | 'readymade',
+              }
+            : emptyMeal,
+          lunch: day.lunch
+            ? {
+                ...day.lunch,
+                dishType: day.lunch.dishType as 'homemade' | 'readymade',
+              }
+            : emptyMeal,
+          dinner: day.dinner
+            ? {
+                ...day.dinner,
+                dishType: day.dinner.dishType as 'homemade' | 'readymade',
+              }
+            : emptyMeal,
+          snacks: day.snacks
+            ? {
+                ...day.snacks,
+                dishType: day.snacks.dishType as 'homemade' | 'readymade',
+              }
+            : emptyMeal,
+        })),
       };
 
       await updateWeeklyPlanMutation.mutateAsync({
         id: updatedPlan.id,
-        plan: planWithCorrectTypes
+        plan: planWithCorrectTypes,
       });
     } catch (err) {
       console.error('Error updating weekly plan:', err);
@@ -236,4 +260,4 @@ export default function WeeklyPlanPage() {
       )}
     </div>
   );
-} 
+}

@@ -1,22 +1,22 @@
-import { PromptTemplate } from "@langchain/core/prompts";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { mealPlan } from "./schemas/meal";
+import { PromptTemplate } from '@langchain/core/prompts';
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { mealPlanSchema } from './schemas/meal';
 
 // Интерфейс для начальных параметров функции generateMealPlan
 interface MealPlanParams {
   // Основные параметры
-  goal: "weight_loss" | "muscle_gain" | "maintenance";
+  goal: 'weight_loss' | 'muscle_gain' | 'maintenance';
   preferences: string[];
   allergies: string[];
   region: string;
   current_date: string;
   available_products: string[];
   user_profile_info: string;
-  
+
   // Опциональные параметры
   target_macros?: string;
   target_daily_calories?: CalorieParams;
-  
+
   // Индексная сигнатура для поддержки дополнительных полей, требуемых LangChain
   [key: string]: any;
 }
@@ -34,19 +34,16 @@ interface CalorieParams {
   snacksMax: number;
 }
 
-
-
 const llm = new ChatGoogleGenerativeAI({
-    model: "gemini-2.0-flash-001",
-    maxOutputTokens: 8192,
-    temperature: 0.7,
-    topP: 0.95,
-    apiKey: process.env.GOOGLE_API_KEY,
-  });
-  
+  model: 'gemini-2.0-flash-001',
+  maxOutputTokens: 8192,
+  temperature: 0.7,
+  topP: 0.95,
+  apiKey: process.env.GOOGLE_API_KEY,
+});
 
 const prompt = PromptTemplate.fromTemplate(
-    `
+  `
     Ты - опытный нутрициолог и диетолог. Составь детальный рацион питания на неделю на русском языке с рецептами, которые можно легко приготовить дома или приобрести в кафе/кулинарии.
 
 Обязательно учти предпочтения в еде: {preferences}
@@ -100,24 +97,22 @@ const prompt = PromptTemplate.fromTemplate(
 
 ВАЖНО: ДЛЯ КАЖДОГО БЛЮДА ОБЯЗАТЕЛЬНО УКАЖИ РАЗМЕР ГОТОВОЙ ПОРЦИИ В ГРАММАХ!
     `
-  );
+);
 
 // Первый этап: создание исходного плана питания
-const initialMealPlanChain = prompt.pipe(llm.withStructuredOutput(mealPlan));
+const initialMealPlanChain = prompt.pipe(llm.withStructuredOutput(mealPlanSchema));
 
 // Полная цепочка обработки с типизированными параметрами
 export async function generateMealPlan(params: MealPlanParams): Promise<any> {
   console.log(`\n=== НАЧАЛО ГЕНЕРАЦИИ ПЛАНА ПИТАНИЯ ===`);
   console.log(`Цель: ${params.goal}`);
-  
+
   // Первый этап: создание исходного плана питания
   console.log(`\nГенерация исходного плана питания через LLM...`);
   const initialPlan = await initialMealPlanChain.invoke(params);
 
   console.log(`\n=== ЗАВЕРШЕНИЕ ГЕНЕРАЦИИ ПЛАНА ПИТАНИЯ ===`);
-  
+
   // Возвращаем скорректированный план
   return initialPlan;
 }
-
-

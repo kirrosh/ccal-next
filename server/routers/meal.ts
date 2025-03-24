@@ -11,7 +11,7 @@ const targetDailyCaloriesSchema = z.object({
   dinnerMin: z.number(),
   dinnerMax: z.number(),
   snacksMin: z.number(),
-  snacksMax: z.number()
+  snacksMax: z.number(),
 });
 
 const userProfileSchema = z.object({
@@ -22,7 +22,7 @@ const userProfileSchema = z.object({
   weight: z.number().min(20).max(300),
   activityLevel: z.enum(['sedentary', 'light', 'moderate', 'active', 'very_active']),
   daily_calories: z.number().optional(),
-  target_daily_calories: targetDailyCaloriesSchema.optional()
+  target_daily_calories: targetDailyCaloriesSchema.optional(),
 });
 
 const nutrientsSchema = z.object({
@@ -65,31 +65,35 @@ const mealPlanInputSchema = z.object({
 
 export const mealRouter = router({
   generateMealPlan: publicProcedure
-    .input(z.object({
-      profile: userProfileSchema,
-      preferences: z.object({
-        cuisine: z.string().optional(),
-        dietaryRestrictions: z.array(z.string()).optional(),
-        mealCount: z.number().min(1).max(7).default(7)
+    .input(
+      z.object({
+        profile: userProfileSchema,
+        preferences: z.object({
+          cuisine: z.string().optional(),
+          dietaryRestrictions: z.array(z.string()).optional(),
+          mealCount: z.number().min(1).max(7).default(7),
+        }),
       })
-    }))
+    )
     .mutation(async ({ ctx, input }): Promise<string> => {
       const params = {
-        goal: "maintenance" as const,
+        goal: 'maintenance' as const,
         preferences: input.preferences.dietaryRestrictions || [],
         allergies: [], // Can be added to preferences later
-        region: input.preferences.cuisine || "general",
+        region: input.preferences.cuisine || 'general',
         current_date: new Date().toISOString().split('T')[0],
         available_products: [], // Can be added later
         user_profile_info: JSON.stringify(input.profile),
-        target_daily_calories: input.profile.target_daily_calories ? {
-          targetCalories: input.profile.daily_calories || 2000,
-          ...input.profile.target_daily_calories
-        } : undefined
+        target_daily_calories: input.profile.target_daily_calories
+          ? {
+              targetCalories: input.profile.daily_calories || 2000,
+              ...input.profile.target_daily_calories,
+            }
+          : undefined,
       };
 
       const generatedMealPlan = await generateMealPlan(params);
-      console.log(generatedMealPlan)
+      console.log(generatedMealPlan);
       try {
         const mealPlan = await ctx.prisma.mealplans.create({
           data: {
@@ -101,10 +105,10 @@ export const mealRouter = router({
             currentDate: params.current_date,
             menu: generatedMealPlan.menu,
             v: 0,
-            createdAt: new Date()
-          }
+            createdAt: new Date(),
+          },
         });
-        
+
         return mealPlan.id;
       } catch (error) {
         console.error('Error saving meal plan:', error);
@@ -117,20 +121,22 @@ export const mealRouter = router({
     }),
 
   regenerateMeal: publicProcedure
-    .input(z.object({
-      profile: userProfileSchema,
-      preferences: z.object({
-        cuisine: z.string().optional(),
-        dietaryRestrictions: z.array(z.string()).optional()
-      }),
-      mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snacks']),
-      mealPlanId: z.string(),
-      mealIndex: z.number()
-    }))
+    .input(
+      z.object({
+        profile: userProfileSchema,
+        preferences: z.object({
+          cuisine: z.string().optional(),
+          dietaryRestrictions: z.array(z.string()).optional(),
+        }),
+        mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snacks']),
+        mealPlanId: z.string(),
+        mealIndex: z.number(),
+      })
+    )
     .mutation(async ({ ctx, input }): Promise<any[]> => {
       let minCalories = 0;
       let maxCalories = 0;
-      
+
       if (input.profile.target_daily_calories) {
         switch (input.mealType) {
           case 'breakfast':
@@ -156,11 +162,11 @@ export const mealRouter = router({
         mealType: input.mealType,
         preferences: input.preferences.dietaryRestrictions || [],
         allergies: [], // Can be added to preferences later
-        region: input.preferences.cuisine || "general",
+        region: input.preferences.cuisine || 'general',
         current_date: new Date().toISOString().split('T')[0],
         user_profile_info: JSON.stringify(input.profile),
         minCalories,
-        maxCalories
+        maxCalories,
       };
 
       const newMeal = await regenerateMeal(params);
@@ -168,7 +174,7 @@ export const mealRouter = router({
       // Update the meal in the database
       try {
         const mealPlan = await ctx.prisma.mealplans.findUnique({
-          where: { id: input.mealPlanId }
+          where: { id: input.mealPlanId },
         });
 
         if (!mealPlan) {
@@ -181,9 +187,9 @@ export const mealRouter = router({
         // Create a new menu object with the updated meal at the specific index
         const updatedMenu = {
           ...mealPlan.menu,
-          [input.mealType]: mealPlan.menu[input.mealType].map((meal, index) => 
-            (index === input.mealIndex) ? newMeal || meal : meal
-          )
+          [input.mealType]: mealPlan.menu[input.mealType].map((meal, index) =>
+            index === input.mealIndex ? newMeal || meal : meal
+          ),
         };
 
         console.log('Updated menu:', updatedMenu, input.mealIndex);
@@ -191,7 +197,7 @@ export const mealRouter = router({
         // Update the meal plan with the new menu
         const updatedMealPlan = await ctx.prisma.mealplans.update({
           where: { id: input.mealPlanId },
-          data: { menu: updatedMenu }
+          data: { menu: updatedMenu },
         });
 
         return newMeal;
@@ -205,38 +211,38 @@ export const mealRouter = router({
       }
     }),
 
-  saveMealPlan: publicProcedure
-    .input(mealPlanInputSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const mealPlan = await ctx.prisma.mealplans.create({
-          data: {
-            ...input,
-            v: 0,
-            createdAt: new Date()
-          }
-        });
-        console.log('Meal plan saved successfully:', mealPlan);
-        return mealPlan;
-      } catch (error) {
-        console.error('Error saving meal plan:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to save meal plan',
-          cause: error,
-        });
-      }
-    }),
+  saveMealPlan: publicProcedure.input(mealPlanInputSchema).mutation(async ({ ctx, input }) => {
+    try {
+      const mealPlan = await ctx.prisma.mealplans.create({
+        data: {
+          ...input,
+          v: 0,
+          createdAt: new Date(),
+        },
+      });
+      console.log('Meal plan saved successfully:', mealPlan);
+      return mealPlan;
+    } catch (error) {
+      console.error('Error saving meal plan:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to save meal plan',
+        cause: error,
+      });
+    }
+  }),
 
   getMealPlans: publicProcedure
-    .input(z.object({
-      userId: z.string(),
-    }))
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       try {
         const mealPlans = await ctx.prisma.mealplans.findMany({
           where: { userId: input.userId },
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         });
         console.log('Retrieved meal plans:', mealPlans);
         return mealPlans;
@@ -251,33 +257,37 @@ export const mealRouter = router({
     }),
 
   getMealPlan: publicProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const mealPlan = await ctx.prisma.mealplans.findUnique({
-        where: { id: input.id }
+        where: { id: input.id },
       });
       return mealPlan;
     }),
 
   deleteMealPlan: publicProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       try {
         const deletedPlan = await ctx.prisma.mealplans.delete({
-          where: { id: input.id }
+          where: { id: input.id },
         });
-        
+
         if (!deletedPlan) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Meal plan not found',
           });
         }
-        
+
         console.log('Meal plan deleted successfully:', deletedPlan);
         return deletedPlan;
       } catch (error) {
@@ -294,24 +304,26 @@ export const mealRouter = router({
     }),
 
   updateMealPlanName: publicProcedure
-    .input(z.object({
-      id: z.string(),
-      name: z.string(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       try {
         const updatedPlan = await ctx.prisma.mealplans.update({
           where: { id: input.id },
-          data: { name: input.name }
+          data: { name: input.name },
         });
-        
+
         if (!updatedPlan) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Meal plan not found',
           });
         }
-        
+
         console.log('Meal plan name updated successfully:', updatedPlan);
         return updatedPlan;
       } catch (error) {
@@ -353,7 +365,7 @@ function formatUserProfileInfo(userProfile: {
     light: 'легкая активность (1-3 раза в неделю)',
     moderate: 'умеренная активность (3-5 раз в неделю)',
     active: 'высокая активность (6-7 раз в неделю)',
-    very_active: 'очень высокая активность'
+    very_active: 'очень высокая активность',
   };
 
   let caloriesInfo = '';
@@ -381,4 +393,4 @@ function formatUserProfileInfo(userProfile: {
   * Вес: ${userProfile.weight} кг
   * Уровень активности: ${activityLabels[userProfile.activityLevel] || userProfile.activityLevel}${caloriesInfo}${targetCaloriesInfo}
 `;
-} 
+}

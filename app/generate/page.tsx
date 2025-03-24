@@ -16,12 +16,11 @@ export default function GeneratePage() {
     preferences: '',
     allergies: '',
     region: 'Россия',
-    available_products: ''
+    available_products: '',
   });
   const userProfile = getUserProfile();
   // Calculate calories on mount and when user profile changes
   useEffect(() => {
-    
     if (userProfile) {
       // Calculate calories using the Mifflin-St. Jeor formula
       let bmr;
@@ -30,7 +29,7 @@ export default function GeneratePage() {
       } else {
         bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161;
       }
-      
+
       // Activity level multipliers
       const activityMultipliers: Record<string, number> = {
         sedentary: 1.2,
@@ -39,14 +38,16 @@ export default function GeneratePage() {
         active: 1.725,
         very_active: 1.9,
       };
-      
+
       // Calculate TDEE (Total Daily Energy Expenditure)
       const tdee = Math.round(bmr * activityMultipliers[userProfile.activityLevel]);
       setCalories(tdee);
     }
   }, [userProfile]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -62,20 +63,23 @@ export default function GeneratePage() {
       }
 
       // Convert comma-separated strings to arrays
-      const preferences = formData.preferences.split(',').map(item => item.trim()).filter(Boolean);
+      const preferences = formData.preferences
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
       // const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
       // const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
 
       const result = await generateMealPlanMutation.mutateAsync({
         profile: {
           userId: 'default',
-          ...userProfile
+          ...userProfile,
         },
         preferences: {
           cuisine: formData.region,
           dietaryRestrictions: preferences,
-          mealCount: 7
-        }
+          mealCount: 7,
+        },
       });
 
       // Navigate to the meal plan page
@@ -94,7 +98,7 @@ export default function GeneratePage() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
         <div className="bg-white shadow sm:rounded-lg p-6">
           <h1 className="text-2xl font-bold mb-6">Создать новый рацион питания</h1>
-          
+
           {calories && (
             <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h2 className="text-lg font-medium text-blue-800">Информация из профиля</h2>
@@ -106,7 +110,7 @@ export default function GeneratePage() {
               </p>
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="preferences" className="block text-sm font-medium text-gray-700">
@@ -122,7 +126,7 @@ export default function GeneratePage() {
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               />
             </div>
-            
+
             <div>
               <label htmlFor="allergies" className="block text-sm font-medium text-gray-700">
                 Аллергии (через запятую)
@@ -137,7 +141,7 @@ export default function GeneratePage() {
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               />
             </div>
-            
+
             <div>
               <label htmlFor="region" className="block text-sm font-medium text-gray-700">
                 Регион
@@ -151,9 +155,12 @@ export default function GeneratePage() {
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               />
             </div>
-            
+
             <div>
-              <label htmlFor="available_products" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="available_products"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Доступные продукты (через запятую)
               </label>
               <textarea
@@ -166,7 +173,7 @@ export default function GeneratePage() {
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               />
             </div>
-            
+
             <div className="flex justify-end">
               <button
                 type="submit"
@@ -179,8 +186,6 @@ export default function GeneratePage() {
           </form>
         </div>
       </main>
-      
-   
     </div>
   );
-} 
+}

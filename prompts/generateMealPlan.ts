@@ -1,7 +1,7 @@
-import { PromptTemplate } from "@langchain/core/prompts";
+import { PromptTemplate } from '@langchain/core/prompts';
 
 export const generateMealPlanPrompt = PromptTemplate.fromTemplate(
-    `
+  `
     Ты - опытный нутрициолог и диетолог. Составь детальный рацион питания на неделю на русском языке с рецептами, которые можно легко приготовить дома или приобрести в кафе/кулинарии.
 
 Обязательно учти предпочтения в еде: {preferences}
@@ -55,4 +55,4 @@ export const generateMealPlanPrompt = PromptTemplate.fromTemplate(
 
 ВАЖНО: ДЛЯ КАЖДОГО БЛЮДА ОБЯЗАТЕЛЬНО УКАЖИ РАЗМЕР ГОТОВОЙ ПОРЦИИ В ГРАММАХ!
     `
-); 
+);

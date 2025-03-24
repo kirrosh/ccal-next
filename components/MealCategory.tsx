@@ -10,7 +10,13 @@ interface MealCategoryProps {
   mealPlanId: string;
 }
 
-export default function MealCategory({ title, icon, meals, mealType, mealPlanId }: MealCategoryProps) {
+export default function MealCategory({
+  title,
+  icon,
+  meals,
+  mealType,
+  mealPlanId,
+}: MealCategoryProps) {
   return (
     <div className="w-full">
       <div className="flex items-center gap-2 mb-4">
@@ -25,7 +31,7 @@ export default function MealCategory({ title, icon, meals, mealType, mealPlanId 
             mealType={mealType}
             mealPlanId={mealPlanId}
             mealIndex={index}
-            onMealUpdated={(meal) => {
+            onMealUpdated={meal => {
               console.log(meal);
             }}
           />
@@ -33,4 +39,4 @@ export default function MealCategory({ title, icon, meals, mealType, mealPlanId 
       </div>
     </div>
   );
-} 
+}

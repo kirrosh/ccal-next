@@ -21,10 +21,23 @@ export interface Nutrients {
 export interface Meal {
   id?: string;
   name: string;
-  dishType: 'homemade' | 'readymade' | string
+  dishType: 'homemade' | 'readymade' | string;
   ingredients: Ingredient[];
   nutrients: Nutrients;
   servingSize: number;
+}
+
+export interface MealPlan {
+  id: string;
+  goal: 'weight_loss' | 'muscle_gain' | 'maintenance';
+  preferences?: string[];
+  allergies?: string[];
+  menu: {
+    breakfast: Meal[];
+    lunch: Meal[];
+    dinner: Meal[];
+    snacks: Meal[];
+  };
 }
 
 export interface UserProfile {
@@ -70,4 +83,4 @@ export interface WeeklyPlan {
   createdAt: string;
   updatedAt: string;
   v: number;
-} 
+}

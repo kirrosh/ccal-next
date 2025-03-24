@@ -10,7 +10,7 @@ const targetDailyCaloriesSchema = z.object({
   dinnerMin: z.number(),
   dinnerMax: z.number(),
   snacksMin: z.number(),
-  snacksMax: z.number()
+  snacksMax: z.number(),
 });
 
 const userProfileSchema = z.object({
@@ -21,7 +21,7 @@ const userProfileSchema = z.object({
   weight: z.number().min(20).max(300),
   activityLevel: z.enum(['sedentary', 'light', 'moderate', 'active', 'very_active']),
   daily_calories: z.number().optional(),
-  target_daily_calories: targetDailyCaloriesSchema.optional()
+  target_daily_calories: targetDailyCaloriesSchema.optional(),
 });
 
 export const userRouter = router({
@@ -35,9 +35,9 @@ export const userRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         const existingUser = await ctx.prisma.users.findUnique({
-          where: { email: input.email }
+          where: { email: input.email },
         });
-        
+
         if (existingUser) {
           throw new TRPCError({
             code: 'CONFLICT',
@@ -49,13 +49,13 @@ export const userRouter = router({
           name: input.name,
           email: input.email,
           v: 0,
-          createdAt: new Date()
+          createdAt: new Date(),
         };
 
         const user = await ctx.prisma.users.create({
-          data: userData
+          data: userData,
         });
-        
+
         console.log('User created successfully:', user);
         return user;
       } catch (error) {
@@ -86,52 +86,48 @@ export const userRouter = router({
     }
   }),
 
-  getById: publicProcedure
-    .input(z.string())
-    .query(async ({ ctx, input }) => {
-      try {
-        const user = await ctx.prisma.users.findUnique({
-          where: { id: input }
-        });
-        
-        if (!user) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'User not found',
-          });
-        }
-        
-        console.log('Retrieved user:', user);
-        return user;
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        if (error instanceof TRPCError) {
-          throw error;
-        }
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to fetch user',
-          cause: error,
-        });
-      }
-    }),
+  getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    try {
+      const user = await ctx.prisma.users.findUnique({
+        where: { id: input },
+      });
 
-  updateProfile: publicProcedure
-    .input(userProfileSchema)
-    .mutation(async ({ ctx, input }) => {
-      try {
-        const updatedUser = await ctx.prisma.users.update({
-          where: { id: input.id },
-          data: input
-        });
-        return updatedUser;
-      } catch (error) {
-        console.error('Error updating user profile:', error);
+      if (!user) {
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to update user profile',
-          cause: error,
+          code: 'NOT_FOUND',
+          message: 'User not found',
         });
       }
-    }),
-}); 
+
+      console.log('Retrieved user:', user);
+      return user;
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch user',
+        cause: error,
+      });
+    }
+  }),
+
+  updateProfile: publicProcedure.input(userProfileSchema).mutation(async ({ ctx, input }) => {
+    try {
+      const updatedUser = await ctx.prisma.users.update({
+        where: { id: input.id },
+        data: input,
+      });
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to update user profile',
+        cause: error,
+      });
+    }
+  }),
+});
