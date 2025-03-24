@@ -1,5 +1,48 @@
 import mongoose from 'mongoose';
 
+interface Nutrients {
+  calories: number;
+  protein: number;
+  fats: number;
+  carbs: number;
+}
+
+interface Ingredient {
+  name: string;
+  amount: number;
+  unit: string;
+}
+
+export interface Meal {
+  name: string;
+  dishType: 'homemade' | 'readymade';
+  ingredients: Ingredient[];
+  nutrients: Nutrients;
+  servingSize: number;
+}
+
+interface DailyMenu {
+  breakfast: Meal[];
+  lunch: Meal[];
+  dinner: Meal[];
+  snacks: Meal[];
+}
+
+export interface IMealPlan {
+  userId: string;
+  goal: 'weight_loss' | 'muscle_gain' | 'maintenance';
+  preferences: string[];
+  allergies: string[];
+  availableProducts: string[];
+  currentDate: string;
+  createdAt: Date;
+  menu: DailyMenu;
+}
+
+export interface MealPlanDocument extends  IMealPlan {
+  _id: string;
+}
+
 const nutrientsSchema = new mongoose.Schema({
   calories: { type: Number, required: true },
   protein: { type: Number, required: true },
@@ -59,4 +102,4 @@ const mealPlanSchema = new mongoose.Schema({
   },
 });
 
-export const MealPlan = mongoose.models.MealPlan || mongoose.model('MealPlan', mealPlanSchema); 
+export const MealPlan = mongoose.models.MealPlan || mongoose.model<MealPlanDocument>('MealPlan', mealPlanSchema); 

@@ -25,7 +25,7 @@ const defaultProfile: UserProfile = {
 };
 
 export default function ProfilePage() {
-  const { getUserProfile, setUserProfile } = useStorage();
+  const { getUserProfile } = useStorage();
   const userProfile = getUserProfile();
   const [profile, setProfile] = useState<UserProfile>(userProfile || defaultProfile);
   const [calories, setCalories] = useState<number | null>(null);

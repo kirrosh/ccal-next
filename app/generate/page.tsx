@@ -4,26 +4,24 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useStorage } from '@/hooks/useStorage';
-import { UserProfile } from '@/types';
-import { api } from '@/utils/api';
+import { api } from '@/trpc/react';
 
 export default function GeneratePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { getUserProfile, addMealPlan } = useStorage();
+  const { getUserProfile } = useStorage();
   const [calories, setCalories] = useState<number | null>(null);
   const generateMealPlanMutation = api.meal.generateMealPlan.useMutation();
   const [formData, setFormData] = useState({
-    goal: 'weight_loss',
     preferences: '',
     allergies: '',
     region: 'Россия',
     available_products: ''
   });
-
+  const userProfile = getUserProfile();
   // Calculate calories on mount and when user profile changes
   useEffect(() => {
-    const userProfile = getUserProfile();
+    
     if (userProfile) {
       // Calculate calories using the Mifflin-St. Jeor formula
       let bmr;
@@ -46,7 +44,7 @@ export default function GeneratePage() {
       const tdee = Math.round(bmr * activityMultipliers[userProfile.activityLevel]);
       setCalories(tdee);
     }
-  }, []);
+  }, [userProfile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -65,23 +63,23 @@ export default function GeneratePage() {
 
       // Convert comma-separated strings to arrays
       const preferences = formData.preferences.split(',').map(item => item.trim()).filter(Boolean);
-      const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
-      const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
+      // const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
+      // const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
 
       const result = await generateMealPlanMutation.mutateAsync({
-        profile: userProfile,
+        profile: {
+          userId: 'default',
+          ...userProfile
+        },
         preferences: {
           cuisine: formData.region,
           dietaryRestrictions: preferences,
           mealCount: 7
         }
       });
-      
-      // Save using storage hook
-      addMealPlan(result);
-      
+
       // Navigate to the meal plan page
-      router.push(`/meal-plan/${result.id}`);
+      router.push(`/meal-plan/${result}`);
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to generate meal plan. Please try again.');
@@ -129,23 +127,6 @@ export default function GeneratePage() {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="goal" className="block text-sm font-medium text-gray-700">
-                Цель
-              </label>
-              <select
-                id="goal"
-                name="goal"
-                value={formData.goal}
-                onChange={handleChange}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
-              >
-                <option value="weight_loss">Похудение</option>
-                <option value="muscle_gain">Набор массы</option>
-                <option value="maintenance">Поддержание формы</option>
-              </select>
-            </div>
-            
             <div>
               <label htmlFor="preferences" className="block text-sm font-medium text-gray-700">
                 Предпочтения (через запятую)

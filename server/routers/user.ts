@@ -62,7 +62,7 @@ export const userRouter = router({
     try {
       const users = await User.find({});
       console.log('Retrieved users:', users);
-      return users;
+      return users.map(user => user.toObject());
     } catch (error) {
       console.error('Error fetching users:', error);
       throw new TRPCError({
@@ -85,7 +85,7 @@ export const userRouter = router({
           });
         }
         console.log('Retrieved user:', user);
-        return user;
+        return user.toObject();
       } catch (error) {
         console.error('Error fetching user:', error);
         if (error instanceof TRPCError) {

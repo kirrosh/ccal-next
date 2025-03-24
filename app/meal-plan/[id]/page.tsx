@@ -1,20 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import MealPlanView from '@/components/MealPlanView';
-import { useStorage } from '@/hooks/useStorage';
-import { MealPlan } from '@/types';
+
+import { api } from '@/trpc/react';
 
 export default function MealPlanPage() {
   const params = useParams();
-  const router = useRouter();
-  const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
-  const [loading, setLoading] = useState(true);
+  // const router = useRouter();
+  // const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const id = params.id as string;
 
+  const { data: mealPlan, isLoading } = api.meal.getMealPlan.useQuery({ id });
+  console.log(mealPlan)
 
 
   const handleDelete = () => {
@@ -47,7 +49,7 @@ export default function MealPlanPage() {
       
       {/* Main content */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <p className="text-lg text-gray-600">Загрузка рациона...</p>
           </div>
@@ -84,7 +86,7 @@ export default function MealPlanPage() {
                     Удалить рацион
                   </button>
                   <Link 
-                    href={`/weekly-plan/${mealPlan.id}`}
+                    href={`/weekly-plan/${mealPlan._id}`}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                   >
                     Составить план на неделю

@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { generateMealPlan, regenerateMeal } from '../../services/langchain';
-import { MealPlan } from '../db/models/MealPlan';
+import { MealPlan, type MealPlanDocument, type MealPlan as IMealPlan, type Meal } from '../db/models/MealPlan';
 import { TRPCError } from '@trpc/server';
+import type { HydratedDocument } from 'mongoose';
+import mongoose from 'mongoose';
 
 const targetDailyCaloriesSchema = z.object({
   breakfastMin: z.number(),
@@ -16,6 +18,7 @@ const targetDailyCaloriesSchema = z.object({
 });
 
 const userProfileSchema = z.object({
+  userId: z.string(),
   gender: z.enum(['male', 'female']),
   age: z.number().min(1).max(120),
   height: z.number().min(50).max(250),
@@ -73,7 +76,7 @@ export const mealRouter = router({
         mealCount: z.number().min(1).max(7).default(7)
       })
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input }): Promise<string> => {
       const params = {
         goal: "maintenance" as const,
         preferences: input.preferences.dietaryRestrictions || [],
@@ -88,12 +91,28 @@ export const mealRouter = router({
         } : undefined
       };
 
-      const mealPlan = await generateMealPlan(params);
-      return {
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        ...mealPlan,
-      };
+      const generatedMealPlan = await generateMealPlan(params);
+      console.log(generatedMealPlan)
+      try {
+        const mealPlan = await MealPlan.create({
+          userId: input.profile.userId,
+          goal: params.goal,
+          preferences: params.preferences,
+          allergies: params.allergies,
+          availableProducts: params.available_products,
+          currentDate: params.current_date,
+          menu: generatedMealPlan.menu
+        });
+        
+        return (mealPlan._id).toString();
+      } catch (error) {
+        console.error('Error saving meal plan:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to save meal plan',
+          cause: error,
+        });
+      }
     }),
 
   regenerateMeal: publicProcedure
@@ -105,7 +124,7 @@ export const mealRouter = router({
       }),
       mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snacks'])
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input }): Promise<Meal[]> => {
       let minCalories = 0;
       let maxCalories = 0;
       
@@ -172,7 +191,7 @@ export const mealRouter = router({
           .sort({ createdAt: -1 })
           .exec();
         console.log('Retrieved meal plans:', mealPlans);
-        return mealPlans;
+        return mealPlans.map(plan => plan.toObject());
       } catch (error) {
         console.error('Error fetching meal plans:', error);
         throw new TRPCError({
@@ -182,7 +201,14 @@ export const mealRouter = router({
         });
       }
     }),
-
+  getMealPlan: publicProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const mealPlan = await MealPlan.findById(input.id);
+      return mealPlan ? mealPlan.toObject() as any as MealPlanDocument : null;
+    }),
   deleteMealPlan: publicProcedure
     .input(z.object({
       id: z.string(),

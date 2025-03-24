@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import MealCard from './MealCard';
-import { Meal, MealType, MealPlan, DailyMenu, WeeklyPlan } from '@/types';
+import { Meal, MealType, MealPlan, WeeklyPlan } from '@/types';
 
 interface WeeklyPlanViewProps {
   mealPlan: MealPlan;

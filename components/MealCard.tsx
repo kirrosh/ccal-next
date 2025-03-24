@@ -26,8 +26,6 @@ interface MealCardProps {
 const MealCard: React.FC<MealCardProps> = ({
   meal,
   mealType,
-  mealPlanId,
-  onMealUpdated
 }) => {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
@@ -93,6 +91,7 @@ const MealCard: React.FC<MealCardProps> = ({
           dietaryRestrictions: []
         },
         profile: {
+          userId: 'default',
           gender: userProfile?.gender || 'male',
           age: userProfile?.age || 30,
           height: userProfile?.height || 170,
@@ -171,13 +170,13 @@ const MealCard: React.FC<MealCardProps> = ({
         <Button 
           variant="outline" 
           size="sm" 
-          className="w-full"
+          className="w-full  mb-3 "
           onClick={handleRegenerate}
           disabled={isRegenerating}
         >
           {isRegenerating ? (
             <>
-              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+              <ReloadIcon className="mr-2h-4 w-4 animate-spin" />
               Генерация...
             </>
           ) : (

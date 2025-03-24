@@ -39,6 +39,7 @@ export default function UsersPage() {
     try {
       await createUser.mutateAsync({ name, email });
     } catch (error) {
+      console.error(error);
       // Error is handled by the mutation's onError callback
     }
   };

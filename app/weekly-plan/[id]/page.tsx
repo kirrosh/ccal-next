@@ -1,17 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
 import { MealPlan, WeeklyPlan } from '@/types';
 import { useStorage } from '@/hooks/useStorage';
 
 export default function WeeklyPlanPage() {
-  const params = useParams();
   const router = useRouter();
   const { 
-    getWeeklyPlanByMealPlanId, 
     deleteWeeklyPlan,
     addWeeklyPlan,
     updateWeeklyPlan 
