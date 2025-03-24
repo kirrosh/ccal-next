@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
-import { User } from '../db/models/User';
 import { TRPCError } from '@trpc/server';
 
 const targetDailyCaloriesSchema = z.object({
@@ -15,6 +14,7 @@ const targetDailyCaloriesSchema = z.object({
 });
 
 const userProfileSchema = z.object({
+  id: z.string(),
   gender: z.enum(['male', 'female']),
   age: z.number().min(1).max(120),
   height: z.number().min(50).max(250),
@@ -32,9 +32,12 @@ export const userRouter = router({
         email: z.string().email(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       try {
-        const existingUser = await User.findOne({ email: input.email });
+        const existingUser = await ctx.prisma.users.findUnique({
+          where: { email: input.email }
+        });
+        
         if (existingUser) {
           throw new TRPCError({
             code: 'CONFLICT',
@@ -42,7 +45,17 @@ export const userRouter = router({
           });
         }
 
-        const user = await User.create(input);
+        const userData = {
+          name: input.name,
+          email: input.email,
+          v: 0,
+          createdAt: new Date()
+        };
+
+        const user = await ctx.prisma.users.create({
+          data: userData
+        });
+        
         console.log('User created successfully:', user);
         return user;
       } catch (error) {
@@ -58,11 +71,11 @@ export const userRouter = router({
       }
     }),
 
-  getAll: publicProcedure.query(async () => {
+  getAll: publicProcedure.query(async ({ ctx }) => {
     try {
-      const users = await User.find({});
+      const users = await ctx.prisma.users.findMany();
       console.log('Retrieved users:', users);
-      return users.map(user => user.toObject());
+      return users;
     } catch (error) {
       console.error('Error fetching users:', error);
       throw new TRPCError({
@@ -75,17 +88,21 @@ export const userRouter = router({
 
   getById: publicProcedure
     .input(z.string())
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       try {
-        const user = await User.findById(input);
+        const user = await ctx.prisma.users.findUnique({
+          where: { id: input }
+        });
+        
         if (!user) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'User not found',
           });
         }
+        
         console.log('Retrieved user:', user);
-        return user.toObject();
+        return user;
       } catch (error) {
         console.error('Error fetching user:', error);
         if (error instanceof TRPCError) {
@@ -101,9 +118,20 @@ export const userRouter = router({
 
   updateProfile: publicProcedure
     .input(userProfileSchema)
-    .mutation(async ({ input }) => {
-      // Here you would typically save to a database
-      // For now, we'll just return the profile
-      return input;
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const updatedUser = await ctx.prisma.users.update({
+          where: { id: input.id },
+          data: input
+        });
+        return updatedUser;
+      } catch (error) {
+        console.error('Error updating user profile:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update user profile',
+          cause: error,
+        });
+      }
     }),
 }); 

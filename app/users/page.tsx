@@ -112,10 +112,10 @@ export default function UsersPage() {
             {getAllUsers.data && (
               <div className="space-y-2">
                 {getAllUsers.data.map((user) => (
-                  <div key={user._id} className="p-4 bg-gray-100 rounded">
+                  <div key={user.id} className="p-4 bg-gray-100 rounded">
                     <p>Name: {user.name}</p>
                     <p>Email: {user.email}</p>
-                    <p>ID: {user._id}</p>
+                    <p>ID: {user.id}</p>
                   </div>
                 ))}
               </div>

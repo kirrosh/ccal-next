@@ -81,7 +81,7 @@ export default function ProfilePage() {
     e.preventDefault();
     
     // Save profile using tRPC mutation
-    updateProfileMutation.mutate(profile);
+    // updateProfileMutation.mutate(profile);
   };
 
   return (

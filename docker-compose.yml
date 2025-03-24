@@ -1,11 +1,40 @@
 version: '3.8'
 services:
-  mongodb:
+  mongo1:
     image: mongo:latest
     ports:
       - "27017:27017"
+    command: mongod --replSet myReplicaSetName --bind_ip_all
     volumes:
-      - mongodb_data:/data/db
+      - mongodb_data1:/data/db
+    networks:
+      - mongoCluster
+
+  mongo2:
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    command: mongod --replSet myReplicaSetName --bind_ip_all
+    volumes:
+      - mongodb_data2:/data/db
+    networks:
+      - mongoCluster
+
+  mongo3:
+    image: mongo:latest
+    ports:
+      - "27019:27017"
+    command: mongod --replSet myReplicaSetName --bind_ip_all
+    volumes:
+      - mongodb_data3:/data/db
+    networks:
+      - mongoCluster
 
 volumes:
-  mongodb_data: 
+  mongodb_data1:
+  mongodb_data2:
+  mongodb_data3:
+
+networks:
+  mongoCluster:
+    driver: bridge 

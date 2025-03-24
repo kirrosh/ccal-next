@@ -1,7 +1,7 @@
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import { appRouter } from '@/server/routers/_app';
 import { NextRequest } from 'next/server';
-import connectDB from '@/server/db/mongodb';
+import prisma from '@/server/db/prisma';
 import { Context } from '@/server/trpc';
 
 const handler = (req: NextRequest) =>
@@ -10,9 +10,9 @@ const handler = (req: NextRequest) =>
     req,
     router: appRouter,
     createContext: async (): Promise<Context> => {
-      // Initialize database connection
-      await connectDB();
-      return {};
+      return {
+        prisma,
+      };
     },
   });
 

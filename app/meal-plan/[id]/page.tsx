@@ -86,7 +86,7 @@ export default function MealPlanPage() {
                     Удалить рацион
                   </button>
                   <Link 
-                    href={`/weekly-plan/${mealPlan._id}`}
+                    href={`/weekly-plan/${mealPlan.id}`}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                   >
                     Составить план на неделю

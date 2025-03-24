@@ -1,10 +1,7 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { generateMealPlan, regenerateMeal } from '../../services/langchain';
-import { MealPlan, type MealPlanDocument, type MealPlan as IMealPlan, type Meal } from '../db/models/MealPlan';
 import { TRPCError } from '@trpc/server';
-import type { HydratedDocument } from 'mongoose';
-import mongoose from 'mongoose';
 
 const targetDailyCaloriesSchema = z.object({
   breakfastMin: z.number(),
@@ -76,7 +73,7 @@ export const mealRouter = router({
         mealCount: z.number().min(1).max(7).default(7)
       })
     }))
-    .mutation(async ({ input }): Promise<string> => {
+    .mutation(async ({ ctx, input }): Promise<string> => {
       const params = {
         goal: "maintenance" as const,
         preferences: input.preferences.dietaryRestrictions || [],
@@ -94,17 +91,21 @@ export const mealRouter = router({
       const generatedMealPlan = await generateMealPlan(params);
       console.log(generatedMealPlan)
       try {
-        const mealPlan = await MealPlan.create({
-          userId: input.profile.userId,
-          goal: params.goal,
-          preferences: params.preferences,
-          allergies: params.allergies,
-          availableProducts: params.available_products,
-          currentDate: params.current_date,
-          menu: generatedMealPlan.menu
+        const mealPlan = await ctx.prisma.mealplans.create({
+          data: {
+            userId: input.profile.userId,
+            goal: params.goal,
+            preferences: params.preferences,
+            allergies: params.allergies,
+            availableProducts: params.available_products,
+            currentDate: params.current_date,
+            menu: generatedMealPlan.menu,
+            v: 0,
+            createdAt: new Date()
+          }
         });
         
-        return (mealPlan._id).toString();
+        return mealPlan.id;
       } catch (error) {
         console.error('Error saving meal plan:', error);
         throw new TRPCError({
@@ -124,7 +125,7 @@ export const mealRouter = router({
       }),
       mealType: z.enum(['breakfast', 'lunch', 'dinner', 'snacks'])
     }))
-    .mutation(async ({ input }): Promise<Meal[]> => {
+    .mutation(async ({ input }): Promise<any[]> => {
       let minCalories = 0;
       let maxCalories = 0;
       
@@ -166,9 +167,15 @@ export const mealRouter = router({
 
   saveMealPlan: publicProcedure
     .input(mealPlanInputSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       try {
-        const mealPlan = await MealPlan.create(input);
+        const mealPlan = await ctx.prisma.mealplans.create({
+          data: {
+            ...input,
+            v: 0,
+            createdAt: new Date()
+          }
+        });
         console.log('Meal plan saved successfully:', mealPlan);
         return mealPlan;
       } catch (error) {
@@ -185,13 +192,14 @@ export const mealRouter = router({
     .input(z.object({
       userId: z.string(),
     }))
-    .query(async ({ input }) => {
+    .query(async ({ ctx, input }) => {
       try {
-        const mealPlans = await MealPlan.find()
-          .sort({ createdAt: -1 })
-          .exec();
+        const mealPlans = await ctx.prisma.mealplans.findMany({
+          where: { userId: input.userId },
+          orderBy: { createdAt: 'desc' }
+        });
         console.log('Retrieved meal plans:', mealPlans);
-        return mealPlans.map(plan => plan.toObject());
+        return mealPlans;
       } catch (error) {
         console.error('Error fetching meal plans:', error);
         throw new TRPCError({
@@ -201,27 +209,35 @@ export const mealRouter = router({
         });
       }
     }),
+
   getMealPlan: publicProcedure
     .input(z.object({
       id: z.string(),
     }))
-    .query(async ({ input }) => {
-      const mealPlan = await MealPlan.findById(input.id);
-      return mealPlan ? mealPlan.toObject() as any as MealPlanDocument : null;
+    .query(async ({ ctx, input }) => {
+      const mealPlan = await ctx.prisma.mealplans.findUnique({
+        where: { id: input.id }
+      });
+      return mealPlan;
     }),
+
   deleteMealPlan: publicProcedure
     .input(z.object({
       id: z.string(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       try {
-        const deletedPlan = await MealPlan.findByIdAndDelete(input.id);
+        const deletedPlan = await ctx.prisma.mealplans.delete({
+          where: { id: input.id }
+        });
+        
         if (!deletedPlan) {
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'Meal plan not found',
           });
         }
+        
         console.log('Meal plan deleted successfully:', deletedPlan);
         return deletedPlan;
       } catch (error) {
