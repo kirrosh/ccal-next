@@ -45,7 +45,7 @@ interface RegenerateMealParams {
   user_profile_info: string;
   minCalories: number;
   maxCalories: number;
-
+  previousMeal: string;
   // Индексная сигнатура для поддержки дополнительных полей, требуемых LangChain
   [key: string]: any;
 }

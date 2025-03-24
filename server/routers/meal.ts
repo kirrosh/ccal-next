@@ -158,24 +158,29 @@ export const mealRouter = router({
         }
       }
 
-      const params = {
-        mealType: input.mealType,
-        preferences: input.preferences.dietaryRestrictions || [],
-        allergies: [], // Can be added to preferences later
-        region: input.preferences.cuisine || 'general',
-        current_date: new Date().toISOString().split('T')[0],
-        user_profile_info: JSON.stringify(input.profile),
-        minCalories,
-        maxCalories,
-      };
-
-      const newMeal = await regenerateMeal(params);
+    
 
       // Update the meal in the database
       try {
         const mealPlan = await ctx.prisma.mealplans.findUnique({
           where: { id: input.mealPlanId },
         });
+
+        const previousMeal = mealPlan?.menu[input.mealType][input.mealIndex];
+
+        const params = {
+          mealType: input.mealType,
+          preferences: input.preferences.dietaryRestrictions || [],
+          allergies: [], // Can be added to preferences later
+          region: input.preferences.cuisine || 'general',
+          current_date: new Date().toISOString().split('T')[0],
+          user_profile_info: JSON.stringify(input.profile),
+          minCalories,
+          maxCalories,
+          previousMeal: JSON.stringify(previousMeal),
+        };
+  
+        const newMeal = await regenerateMeal(params);
 
         if (!mealPlan) {
           throw new TRPCError({
@@ -195,7 +200,7 @@ export const mealRouter = router({
         console.log('Updated menu:', updatedMenu, input.mealIndex);
 
         // Update the meal plan with the new menu
-        const updatedMealPlan = await ctx.prisma.mealplans.update({
+        await ctx.prisma.mealplans.update({
           where: { id: input.mealPlanId },
           data: { menu: updatedMenu },
         });
