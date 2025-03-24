@@ -200,4 +200,36 @@ export const weeklyRouter = router({
         });
       }
     }),
+
+  deleteWeeklyPlan: publicProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const deletedPlan = await ctx.prisma.weeklyplans.delete({
+          where: { id: input.id }
+        });
+
+        if (!deletedPlan) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Weekly plan not found',
+          });
+        }
+
+        console.log('Weekly plan deleted successfully:', deletedPlan);
+        return deletedPlan;
+      } catch (error) {
+        console.error('Error deleting weekly plan:', error);
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete weekly plan',
+          cause: error,
+        });
+      }
+    }),
 }); 
