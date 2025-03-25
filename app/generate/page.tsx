@@ -3,9 +3,11 @@
 import { useState,  } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/trpc/react';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function GeneratePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [calories, setCalories] = useState<number | null>(null);
   const generateMealPlanMutation = api.meal.generateMealPlan.useMutation();
@@ -63,7 +65,11 @@ export default function GeneratePage() {
       router.push(`/meal-plan/${result}`);
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to generate meal plan. Please try again.');
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось сгенерировать рацион. Пожалуйста, попробуйте снова.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }

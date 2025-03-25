@@ -1,9 +1,8 @@
 'use client';
 
-import { toast } from '@/components/ui/use-toast';
 import { api } from '@/trpc/react';
 import { useState } from 'react';
-
+import { useToast } from '@/components/ui/use-toast';
 // Activity level labels in Russian
 const activityLabels = {
   sedentary: 'Малоподвижный образ жизни',
@@ -37,11 +36,13 @@ interface FormData {
 export default function ProfilePage() {
   const { data: profile, isLoading, error } = api.profile.getProfile.useQuery();
   const utils = api.useUtils();
+  const { toast } = useToast();
   const updateProfile = api.profile.update.useMutation({
     onSuccess: () => {
       utils.profile.getProfile.invalidate();
       toast({
         title: 'Профиль обновлен',
+        variant: 'success',
       });
     },
   });

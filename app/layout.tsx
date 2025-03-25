@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ClerkProvider } from '@clerk/nextjs';
 import { UserButton, SignInButton, useUser } from '@clerk/nextjs';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -76,6 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <QueryClientProvider client={queryClient}>
               <Header />
               {children}
+              <Toaster />
             </QueryClientProvider>
           </api.Provider>
         </ClerkProvider>

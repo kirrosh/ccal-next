@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { router, publicProcedure } from '../trpc';
+import { router, publicProcedure, protectedProcedure } from '../trpc';
 import { generateMealPlan, regenerateMeal } from '../../services/langchain';
 import { TRPCError } from '@trpc/server';
 
@@ -237,16 +237,11 @@ export const mealRouter = router({
     }
   }),
 
-  getMealPlans: publicProcedure
-    .input(
-      z.object({
-        userId: z.string(),
-      })
-    )
+  getMealPlans: protectedProcedure
     .query(async ({ ctx, input }) => {
       try {
         const mealPlans = await ctx.prisma.mealplans.findMany({
-          where: { userId: input.userId },
+          where: { userId: ctx.auth.userId },
           orderBy: { createdAt: 'desc' },
         });
         console.log('Retrieved meal plans:', mealPlans);

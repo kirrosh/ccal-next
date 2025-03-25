@@ -3,23 +3,22 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/trpc/react';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const utils = api.useUtils();
+  const { toast } = useToast();
 
   useEffect(() => {
     setLoading(false);
   }, []);
 
-  const { data: mealPlans = [], isLoading: isLoadingMealPlans } = api.meal.getMealPlans.useQuery({
-    userId: 'default',
-  });
+  const { data: mealPlans = [], isLoading: isLoadingMealPlans } = api.meal.getMealPlans.useQuery();
 
   const deleteMealPlanMutation = api.meal.deleteMealPlan.useMutation({
     onSuccess: () => {
-      // Invalidate the meal plans query to trigger a refetch
-      utils.meal.getMealPlans.invalidate({ userId: 'default' });
+      utils.meal.getMealPlans.invalidate();
     },
   });
 
@@ -27,10 +26,17 @@ export default function Home() {
     if (confirm('Вы уверены, что хотите удалить этот рацион?')) {
       try {
         await deleteMealPlanMutation.mutateAsync({ id });
-        alert('Рацион успешно удален');
+        toast({
+          title: 'Успешно',
+          description: 'Рацион успешно удален',
+        });
       } catch (error) {
         console.error('Error deleting meal plan:', error);
-        alert('Ошибка при удалении рациона');
+        toast({
+          title: 'Ошибка',
+          description: 'Ошибка при удалении рациона',
+          variant: 'destructive',
+        });
       }
     }
   };
