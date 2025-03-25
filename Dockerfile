@@ -9,6 +9,9 @@ WORKDIR /app
 ARG GOOGLE_API_KEY=""
 ENV GOOGLE_API_KEY=${GOOGLE_API_KEY}
 
+ARG DATABASE_URL=""
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 COPY prisma ./prisma/
