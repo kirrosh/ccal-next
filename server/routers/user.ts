@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { router, publicProcedure } from '../trpc';
+import { router, publicProcedure, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 
 const targetDailyCaloriesSchema = z.object({
@@ -84,6 +84,10 @@ export const userRouter = router({
         cause: error,
       });
     }
+  }),
+
+  getAuthUser: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.auth;
   }),
 
   getById: publicProcedure.input(z.string()).query(async ({ ctx, input }) => {

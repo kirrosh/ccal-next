@@ -8,8 +8,53 @@ import { httpBatchLink } from '@trpc/client';
 import { useState } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { ClerkProvider } from '@clerk/nextjs';
+import { UserButton, SignInButton, useUser } from '@clerk/nextjs';
 
 const inter = Inter({ subsets: ['latin'] });
+
+function Header() {
+  const { isSignedIn } = useUser();
+
+  return (
+    <header className="bg-white border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          <div className="flex items-center">
+            <Link href="/" className="text-xl font-bold text-primary">
+              CCAL
+            </Link>
+          </div>
+          <nav className="flex items-center space-x-4">
+            {isSignedIn ? (
+              <>
+                <Link
+                  href="/generate"
+                  className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Создать рацион
+                </Link>
+                <Link
+                  href="/profile"
+                  className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Мой профиль
+                </Link>
+                <UserButton afterSignOutUrl="/" />
+              </>
+            ) : (
+              <SignInButton mode="modal">
+                <button className="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90">
+                  Войти
+                </button>
+              </SignInButton>
+            )}
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -26,37 +71,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={cn(inter.className, 'flex flex-col min-h-screen')}>
-        <api.Provider client={trpcClient} queryClient={queryClient}>
-          <QueryClientProvider client={queryClient}>
-            {/* Header */}
-            <header className="bg-white border-b border-gray-200">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16 items-center">
-                  <div className="flex items-center">
-                    <Link href="/" className="text-xl font-bold text-primary">
-                      CCAL
-                    </Link>
-                  </div>
-                  <nav className="flex space-x-4">
-                    <Link
-                      href="/generate"
-                      className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Создать рацион
-                    </Link>
-                    <Link
-                      href="/profile"
-                      className="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      Мой профиль
-                    </Link>
-                  </nav>
-                </div>
-              </div>
-            </header>
-            {children}
-          </QueryClientProvider>
-        </api.Provider>
+        <ClerkProvider>
+          <api.Provider client={trpcClient} queryClient={queryClient}>
+            <QueryClientProvider client={queryClient}>
+              <Header />
+              {children}
+            </QueryClientProvider>
+          </api.Provider>
+        </ClerkProvider>
         <footer className="bg-white border-t border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex justify-center text-sm text-gray-500">

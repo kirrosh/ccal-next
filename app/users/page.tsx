@@ -23,6 +23,9 @@ export default function UsersPage() {
   });
 
   const getAllUsers = api.user.getAll.useQuery();
+  const { data: authUser } = api.user.getAuthUser.useQuery();
+
+  console.log(authUser);
 
   const getUserById = api.user.getById.useQuery(userId, {
     enabled: !!userId,
