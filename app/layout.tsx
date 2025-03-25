@@ -43,7 +43,7 @@ function Header() {
                 <UserButton afterSignOutUrl="/" />
               </>
             ) : (
-              <SignInButton mode="modal">
+              <SignInButton mode="modal" signUpFallbackRedirectUrl="/profile">
                 <button className="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90">
                   Войти
                 </button>

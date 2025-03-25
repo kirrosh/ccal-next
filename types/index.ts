@@ -42,6 +42,7 @@ export interface MealPlan {
 
 export interface UserProfile {
   id: string;
+  userId: string;
   gender: 'male' | 'female';
   age: number;
   height: number;
@@ -58,6 +59,8 @@ export interface UserProfile {
     snacksMin: number;
     snacksMax: number;
   };
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const activityMultipliers = {

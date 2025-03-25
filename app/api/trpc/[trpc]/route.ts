@@ -1,9 +1,7 @@
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import { appRouter } from '@/server/routers/_app';
 import { NextRequest } from 'next/server';
-import prisma from '@/server/db/prisma';
-import { Context, createContext } from '@/server/trpc';
-import { auth } from '@clerk/nextjs/server'
+import { createContext } from '@/server/trpc';
+import { appRouter } from '@/server/root';
 
 const handler = (req: NextRequest) =>
   fetchRequestHandler({

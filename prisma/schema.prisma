@@ -65,6 +65,21 @@ model users {
   name      String
 }
 
+model userprofiles {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  v               Int      @map("__v")
+  userId          String   @unique
+  gender          String
+  age             Int
+  height          Int
+  weight          Float
+  activityLevel   String
+  daily_calories  Int?
+  target_daily_calories Json?
+  createdAt       DateTime @db.Date
+  updatedAt       DateTime @db.Date
+}
+
 model weeklyplans {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   v           Int      @map("__v")
