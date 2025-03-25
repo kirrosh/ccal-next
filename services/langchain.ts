@@ -50,22 +50,33 @@ interface RegenerateMealParams {
   [key: string]: any;
 }
 
-const llm = new ChatGoogleGenerativeAI({
-  model: 'gemini-2.0-flash-001',
-  maxOutputTokens: 8192,
-  temperature: 0.7,
-  topP: 0.95,
-  apiKey: process.env.GOOGLE_API_KEY,
-});
+// Create LLM only if API key is available
+const llm = process.env.GOOGLE_API_KEY 
+  ? new ChatGoogleGenerativeAI({
+      model: 'gemini-2.0-flash-001',
+      maxOutputTokens: 8192,
+      temperature: 0.7,
+      topP: 0.95,
+      apiKey: process.env.GOOGLE_API_KEY,
+    })
+  : null;
 
-// Цепочка для генерации полного плана питания
-const mealPlanChain = generateMealPlanPrompt.pipe(llm.withStructuredOutput(mealPlanSchemaInline));
-
-// Цепочка для регенерации одного блюда
-const regenerateMealChain = regenerateMealPrompt.pipe(llm.withStructuredOutput(mealSchema));
+// Create chains only if LLM is available
+const mealPlanChain = llm ? generateMealPlanPrompt.pipe(llm.withStructuredOutput(mealPlanSchemaInline)) : null;
+const regenerateMealChain = llm ? regenerateMealPrompt.pipe(llm.withStructuredOutput(mealSchema)) : null;
 
 // Функция генерации полного плана питания
 export async function generateMealPlan(params: MealPlanParams): Promise<any> {
+  if (!llm || !mealPlanChain) {
+    console.warn('Google API key not available. Returning mock data.');
+    return {
+      breakfast: [],
+      lunch: [],
+      dinner: [],
+      snacks: []
+    };
+  }
+
   console.log(`\n=== НАЧАЛО ГЕНЕРАЦИИ ПЛАНА ПИТАНИЯ ===`);
   console.log(`Цель: ${params.goal}`);
 
@@ -77,6 +88,22 @@ export async function generateMealPlan(params: MealPlanParams): Promise<any> {
 
 // Функция регенерации одного блюда
 export async function regenerateMeal(params: RegenerateMealParams): Promise<any> {
+  if (!llm || !regenerateMealChain) {
+    console.warn('Google API key not available. Returning mock data.');
+    return {
+      name: 'Mock Meal',
+      dishType: 'homemade',
+      ingredients: [],
+      nutrients: {
+        calories: 0,
+        protein: 0,
+        fats: 0,
+        carbs: 0
+      },
+      servingSize: 1
+    };
+  }
+
   console.log(`\n=== НАЧАЛО РЕГЕНЕРАЦИИ БЛЮДА ===`);
   console.log(`Тип приема пищи: ${params.mealType}`);
 
