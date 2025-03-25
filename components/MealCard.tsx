@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useToast } from '@/components/ui/use-toast';
 import { Meal, MealType } from '@/types';
-import { useStorage } from '@/hooks/useStorage';
 import { api } from '@/trpc/react';
 
 interface MealCardProps {
@@ -28,7 +27,8 @@ const MealCard: React.FC<MealCardProps> = ({ meal, mealType, mealPlanId, mealInd
   const [isRegenerating, setIsRegenerating] = useState(false);
   const { toast } = useToast();
   const utils = api.useUtils();
-  const { getUserProfile } = useStorage();
+
+  const { data: profile } = api.profile.getProfile.useQuery();
 
   const regenerateMealMutation = api.meal.regenerateMeal.useMutation({
     onError: error => {
@@ -47,8 +47,7 @@ const MealCard: React.FC<MealCardProps> = ({ meal, mealType, mealPlanId, mealInd
   const handleRegenerate = async () => {
     try {
       setIsRegenerating(true);
-      const userProfile = getUserProfile();
-      console.log('Regenerating meal with profile:', userProfile);
+      console.log('Regenerating meal with profile:', profile);
 
       await regenerateMealMutation.mutateAsync({
         mealType,
@@ -59,12 +58,13 @@ const MealCard: React.FC<MealCardProps> = ({ meal, mealType, mealPlanId, mealInd
           dietaryRestrictions: [],
         },
         profile: {
-          userId: 'default',
-          gender: userProfile?.gender || 'male',
-          age: userProfile?.age || 30,
-          height: userProfile?.height || 170,
-          weight: userProfile?.weight || 70,
-          activityLevel: userProfile?.activityLevel || 'sedentary',
+          userId: profile?.userId as string,
+          gender: profile?.gender as 'male' | 'female',
+          age: profile?.age as number,
+          height: profile?.height as number,
+          weight: profile?.weight as number,
+          activityLevel: profile?.activityLevel as 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active',
+          daily_calories: profile?.daily_calories  || undefined,
         },
       });
       utils.meal.getMealPlan.invalidate({ id: mealPlanId });

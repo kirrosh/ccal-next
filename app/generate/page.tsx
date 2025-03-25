@@ -1,15 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState,  } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useStorage } from '@/hooks/useStorage';
 import { api } from '@/trpc/react';
 
 export default function GeneratePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { getUserProfile } = useStorage();
   const [calories, setCalories] = useState<number | null>(null);
   const generateMealPlanMutation = api.meal.generateMealPlan.useMutation();
   const [formData, setFormData] = useState({
@@ -18,32 +15,8 @@ export default function GeneratePage() {
     region: 'Россия',
     available_products: '',
   });
-  const userProfile = getUserProfile();
-  // Calculate calories on mount and when user profile changes
-  useEffect(() => {
-    if (userProfile) {
-      // Calculate calories using the Mifflin-St. Jeor formula
-      let bmr;
-      if (userProfile.gender === 'male') {
-        bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5;
-      } else {
-        bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161;
-      }
+  const { data: profile } = api.profile.getProfile.useQuery();
 
-      // Activity level multipliers
-      const activityMultipliers: Record<string, number> = {
-        sedentary: 1.2,
-        light: 1.375,
-        moderate: 1.55,
-        active: 1.725,
-        very_active: 1.9,
-      };
-
-      // Calculate TDEE (Total Daily Energy Expenditure)
-      const tdee = Math.round(bmr * activityMultipliers[userProfile.activityLevel]);
-      setCalories(tdee);
-    }
-  }, [userProfile]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -57,11 +30,6 @@ export default function GeneratePage() {
     setLoading(true);
 
     try {
-      const userProfile = getUserProfile();
-      if (!userProfile) {
-        throw new Error('User profile not found');
-      }
-
       // Convert comma-separated strings to arrays
       const preferences = formData.preferences
         .split(',')
@@ -70,10 +38,19 @@ export default function GeneratePage() {
       // const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
       // const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
 
+      if (!profile) {
+        throw new Error('Profile not found');
+      }
+
       const result = await generateMealPlanMutation.mutateAsync({
         profile: {
-          userId: 'default',
-          ...userProfile,
+          userId: profile?.userId as string,
+          gender: profile?.gender as 'male' | 'female',
+          age: profile?.age,
+          height: profile?.height,
+          weight: profile?.weight,
+          activityLevel: profile?.activityLevel as 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active',
+          daily_calories: profile?.daily_calories || undefined,
         },
         preferences: {
           cuisine: formData.region,

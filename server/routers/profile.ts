@@ -108,4 +108,34 @@ export const profileRouter = router({
       });
     }
   }),
+
+  update: protectedProcedure
+    .input(userProfileSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const profile = await ctx.prisma.userprofiles.update({
+          where: { userId: ctx.auth.userId },
+          data: {
+            gender: input.gender,
+            age: input.age,
+            height: input.height,
+            weight: input.weight,
+            activityLevel: input.activityLevel,
+            daily_calories: input.daily_calories,
+            target_daily_calories: input.target_daily_calories,
+            updatedAt: new Date(),
+            v: { increment: 1 },
+          },
+        });
+
+        return profile;
+      } catch (error) {
+        console.error('Error updating user profile:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update user profile',
+          cause: error,
+        });
+      }
+    }),
 }); 
