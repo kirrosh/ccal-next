@@ -84,11 +84,11 @@ const MealCard: React.FC<MealCardProps> = ({ meal, mealType, mealPlanId, mealInd
       )}
 
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col">
           <CardTitle className="text-xl leading-tight">{meal.name}</CardTitle>
           <Badge
             variant={meal.dishType === 'homemade' ? 'default' : 'secondary'}
-            className="ml-2 shrink-0"
+            className="w-fit mt-1"
           >
             {meal.dishType === 'homemade' ? 'Домашнее' : 'Готовое'}
           </Badge>

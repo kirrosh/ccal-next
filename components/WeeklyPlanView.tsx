@@ -55,7 +55,6 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
 
   const [activeDay, setActiveDay] = useState<string>('День 1');
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedMealIndices, setSelectedMealIndices] = useState<Record<string, number>>({});
 
   // Initialize empty plan if none exists
   useEffect(() => {
@@ -85,7 +84,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
         if (index === dayIndex) {
           return {
             ...day,
-            [mealType]: [...day[mealType], selectedMeal],
+            [mealType]: [selectedMeal, ...day[mealType]],
           };
         }
         return day;
