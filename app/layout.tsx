@@ -72,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={cn(inter.className, 'flex flex-col min-h-screen')}>
-        <ClerkProvider>
+        <ClerkProvider publishableKey={'pk_test_cmVzb2x2ZWQtbGl6YXJkLTgxLmNsZXJrLmFjY291bnRzLmRldiQ'}>
           <api.Provider client={trpcClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <div className="flex flex-col flex-grow">

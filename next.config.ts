@@ -1,6 +1,6 @@
 import { NextConfig } from 'next'
 
-const config: NextConfig = {
+const nextConfig: NextConfig = {
   output: 'standalone',
   experimental: {
     serverActions: {
@@ -9,4 +9,4 @@ const config: NextConfig = {
   },
 }
 
-export default config
+export default nextConfig
