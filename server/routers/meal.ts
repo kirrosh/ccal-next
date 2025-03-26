@@ -72,17 +72,21 @@ export const mealRouter = router({
           cuisine: z.string().optional(),
           dietaryRestrictions: z.array(z.string()).optional(),
           mealCount: z.number().min(1).max(7).default(7),
+          allergies: z.array(z.string()).optional(),
+          availableProducts: z.array(z.string()).optional(),
         }),
+        name: z.string().optional(),
       })
     )
     .mutation(async ({ ctx, input }): Promise<string> => {
       const params = {
         goal: 'maintenance' as const,
         preferences: input.preferences.dietaryRestrictions || [],
-        allergies: [], // Can be added to preferences later
+        name: input.name || '',
+        allergies: input.preferences.allergies || [],
         region: input.preferences.cuisine || 'general',
         current_date: new Date().toISOString().split('T')[0],
-        available_products: [], // Can be added later
+        available_products: input.preferences.availableProducts || [],
         user_profile_info: JSON.stringify(input.profile),
         target_daily_calories: input.profile.target_daily_calories
           ? {

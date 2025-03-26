@@ -12,6 +12,7 @@ export default function GeneratePage() {
   const [calories, setCalories] = useState<number | null>(null);
   const generateMealPlanMutation = api.meal.generateMealPlan.useMutation();
   const [formData, setFormData] = useState({
+    name: '',
     preferences: '',
     allergies: '',
     region: 'Россия',
@@ -37,8 +38,8 @@ export default function GeneratePage() {
         .split(',')
         .map(item => item.trim())
         .filter(Boolean);
-      // const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
-      // const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
+      const allergies = formData.allergies.split(',').map(item => item.trim()).filter(Boolean);
+      const available_products = formData.available_products.split(',').map(item => item.trim()).filter(Boolean);
 
       if (!profile) {
         throw new Error('Profile not found');
@@ -58,7 +59,10 @@ export default function GeneratePage() {
           cuisine: formData.region,
           dietaryRestrictions: preferences,
           mealCount: 7,
+          allergies: allergies,
+          availableProducts: available_products,
         },
+        name: formData.name
       });
 
       // Navigate to the meal plan page
@@ -82,6 +86,26 @@ export default function GeneratePage() {
         <div className="bg-white shadow sm:rounded-lg p-6">
           <h1 className="text-2xl font-bold mb-6">Создать новый рацион питания</h1>
 
+          {profile && (
+            <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-700">
+                Возраст: <span className="font-bold">{profile.age}</span> лет
+              </p>
+              <p className="text-sm text-green-700">
+                Пол: <span className="font-bold">{profile.gender === 'male' ? 'Мужской' : 'Женский'}</span>
+              </p>
+              <p className="text-sm text-green-700">
+                Вес: <span className="font-bold">{profile.weight}</span> кг
+              </p>
+              <p className="text-sm text-green-700">
+                Рост: <span className="font-bold">{profile.height}</span> см
+              </p>
+              <p className="text-sm text-green-700">
+                Уровень активности: <span className="font-bold">{profile.activityLevel}</span>
+              </p>
+            </div>
+          )}
+
           {calories && (
             <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h2 className="text-lg font-medium text-blue-800">Информация из профиля</h2>
@@ -95,6 +119,21 @@ export default function GeneratePage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Название рациона
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Например: Летний рацион"
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              />
+            </div>
+
             <div>
               <label htmlFor="preferences" className="block text-sm font-medium text-gray-700">
                 Предпочтения (через запятую)
@@ -112,15 +151,15 @@ export default function GeneratePage() {
 
             <div>
               <label htmlFor="allergies" className="block text-sm font-medium text-gray-700">
-                Аллергии (через запятую)
+                Аллергии и нежелательные продукты (через запятую)
               </label>
               <textarea
                 id="allergies"
                 name="allergies"
-                rows={2}
+                rows={3}
                 value={formData.allergies}
                 onChange={handleChange}
-                placeholder="орехи, молоко, глютен"
+                placeholder="орехи, молоко, глютен, грибы, баклажаны, морепродукты"
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               />
             </div>
@@ -144,7 +183,7 @@ export default function GeneratePage() {
                 htmlFor="available_products"
                 className="block text-sm font-medium text-gray-700"
               >
-                Доступные продукты (через запятую)
+                Имеющиеся продукты (через запятую)
               </label>
               <textarea
                 id="available_products"
