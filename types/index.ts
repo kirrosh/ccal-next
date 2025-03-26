@@ -78,10 +78,10 @@ export interface WeeklyPlan {
   startDate: string;
   endDate: string;
   days: Array<{
-    breakfast: Meal;
-    lunch: Meal;
-    dinner: Meal;
-    snacks: Meal;
+    breakfast: Meal[];
+    lunch: Meal[];
+    dinner: Meal[];
+    snacks: Meal[];
   }>;
   createdAt: string;
   updatedAt: string;

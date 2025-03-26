@@ -37,10 +37,10 @@ type Menu {
 }
 
 type WeeklyPlanDay {
-  breakfast MenuItem
-  lunch     MenuItem
-  dinner    MenuItem
-  snacks    MenuItem
+  breakfast MenuItem[]
+  lunch     MenuItem[]
+  dinner    MenuItem[]
+  snacks    MenuItem[]
 }
 
 model mealplans {

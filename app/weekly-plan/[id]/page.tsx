@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
 import { WeeklyPlan } from '@/types';
-import { MealPlan } from '@/schemas/meal';
 import { api } from '@/trpc/react';
 import { z } from 'zod';
 
@@ -38,10 +37,10 @@ const weeklyPlanSchema = z.object({
   endDate: z.string(),
   days: z.array(
     z.object({
-      breakfast: mealSchema,
-      lunch: mealSchema,
-      dinner: mealSchema,
-      snacks: mealSchema,
+      breakfast: z.array(mealSchema),
+      lunch: z.array(mealSchema),
+      dinner: z.array(mealSchema),
+      snacks: z.array(mealSchema),
     })
   ),
   createdAt: z.string(),
@@ -98,46 +97,32 @@ export default function WeeklyPlanPage() {
       const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       const now = new Date();
 
-      // Default empty meal
-      const emptyMeal = {
-        name: '',
-        dishType: 'homemade' as const,
-        ingredients: [],
-        nutrients: {
-          calories: 0,
-          protein: 0,
-          fats: 0,
-          carbs: 0,
-        },
-        servingSize: 0,
-      };
-
       // Convert days object to array format and ensure meal types match schema
       const daysArray = DAYS_OF_WEEK.map((day: string) => ({
         breakfast: mealPlan.menu.breakfast[0]
-          ? {
+          ? [{
               ...mealPlan.menu.breakfast[0],
               dishType: mealPlan.menu.breakfast[0].dishType as 'homemade' | 'readymade',
-            }
-          : emptyMeal,
+            }]
+          : [],
         lunch: mealPlan.menu.lunch[0]
-          ? {
+          ? [{
               ...mealPlan.menu.lunch[0],
               dishType: mealPlan.menu.lunch[0].dishType as 'homemade' | 'readymade',
-            }
-          : emptyMeal,
+            }]
+          : [],
         dinner: mealPlan.menu.dinner[0]
-          ? {
+          ? [{
               ...mealPlan.menu.dinner[0],
               dishType: mealPlan.menu.dinner[0].dishType as 'homemade' | 'readymade',
-            }
-          : emptyMeal,
+            }]
+          : [],
         snacks: mealPlan.menu.snacks[0]
-          ? {
+          ? [{
               ...mealPlan.menu.snacks[0],
               dishType: mealPlan.menu.snacks[0].dishType as 'homemade' | 'readymade',
-            }
-          : emptyMeal,
+            }]
+          : [],
       }));
 
       const newWeeklyPlan: WeeklyPlanInput = {
@@ -161,48 +146,26 @@ export default function WeeklyPlanPage() {
 
   const handleUpdateWeeklyPlan = async (updatedPlan: WeeklyPlan) => {
     try {
-      // Default empty meal
-      const emptyMeal = {
-        name: '',
-        dishType: 'homemade' as const,
-        ingredients: [],
-        nutrients: {
-          calories: 0,
-          protein: 0,
-          fats: 0,
-          carbs: 0,
-        },
-        servingSize: 0,
-      };
-
       // Ensure meal types match schema before updating
       const planWithCorrectTypes: WeeklyPlanInput = {
         ...updatedPlan,
         days: updatedPlan.days.map(day => ({
-          breakfast: day.breakfast
-            ? {
-                ...day.breakfast,
-                dishType: day.breakfast.dishType as 'homemade' | 'readymade',
-              }
-            : emptyMeal,
-          lunch: day.lunch
-            ? {
-                ...day.lunch,
-                dishType: day.lunch.dishType as 'homemade' | 'readymade',
-              }
-            : emptyMeal,
-          dinner: day.dinner
-            ? {
-                ...day.dinner,
-                dishType: day.dinner.dishType as 'homemade' | 'readymade',
-              }
-            : emptyMeal,
-          snacks: day.snacks
-            ? {
-                ...day.snacks,
-                dishType: day.snacks.dishType as 'homemade' | 'readymade',
-              }
-            : emptyMeal,
+          breakfast: day.breakfast.map(meal => ({
+            ...meal,
+            dishType: meal.dishType as 'homemade' | 'readymade',
+          })),
+          lunch: day.lunch.map(meal => ({
+            ...meal,
+            dishType: meal.dishType as 'homemade' | 'readymade',
+          })),
+          dinner: day.dinner.map(meal => ({
+            ...meal,
+            dishType: meal.dishType as 'homemade' | 'readymade',
+          })),
+          snacks: day.snacks.map(meal => ({
+            ...meal,
+            dishType: meal.dishType as 'homemade' | 'readymade',
+          })),
         })),
       };
 
@@ -272,8 +235,8 @@ export default function WeeklyPlanPage() {
 
       {weeklyPlan ? (
         <WeeklyPlanView
-          weeklyPlan={weeklyPlan as any}
-          mealPlan={mealPlan as MealPlan}
+          weeklyPlan={weeklyPlan}
+          mealPlan={mealPlan as any}
           onSave={handleUpdateWeeklyPlan}
         />
       ) : (

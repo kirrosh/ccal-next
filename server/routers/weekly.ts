@@ -30,10 +30,10 @@ const weeklyPlanSchema = z.object({
   endDate: z.string(),
   days: z.array(
     z.object({
-      breakfast: mealSchema,
-      lunch: mealSchema,
-      dinner: mealSchema,
-      snacks: mealSchema,
+      breakfast: z.array(mealSchema),
+      lunch: z.array(mealSchema),
+      dinner: z.array(mealSchema),
+      snacks: z.array(mealSchema),
     })
   ),
   createdAt: z.string(),

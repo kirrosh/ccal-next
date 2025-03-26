@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import { mealPlanSchema } from '@/schemas/meal';
-import { DishType, MealType, Goal, Ingredient, Nutrients, Meal } from './base.types';
+import { Meal } from './base.types';
 
 // Тип для меню на день
 export interface DailyMenu {

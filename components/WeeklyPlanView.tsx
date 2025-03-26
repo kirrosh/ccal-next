@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Coffee, UtensilsCrossed, Moon, Apple, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Coffee, UtensilsCrossed, Moon, Apple, ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import MealCard from './MealCard';
-import { Meal, MealType, WeeklyPlan } from '@/types';
+import { MealType, WeeklyPlan } from '@/types';
 import { MealPlan } from '@/schemas/meal';
 import { useRouter } from 'next/navigation';
 
@@ -42,10 +42,10 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
       startDate: new Date().toISOString(),
       endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       days: DAYS_OF_WEEK.map(() => ({
-        breakfast: mealPlan.menu.breakfast[0] || null,
-        lunch: mealPlan.menu.lunch[0] || null,
-        dinner: mealPlan.menu.dinner[0] || null,
-        snacks: mealPlan.menu.snacks[0] || null,
+        breakfast: mealPlan.menu.breakfast[0] ? [mealPlan.menu.breakfast[0]] : [],
+        lunch: mealPlan.menu.lunch[0] ? [mealPlan.menu.lunch[0]] : [],
+        dinner: mealPlan.menu.dinner[0] ? [mealPlan.menu.dinner[0]] : [],
+        snacks: mealPlan.menu.snacks[0] ? [mealPlan.menu.snacks[0]] : [],
       })),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -55,21 +55,16 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
 
   const [activeDay, setActiveDay] = useState<string>('День 1');
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedMealIndices, setSelectedMealIndices] = useState<Record<MealType, number>>({
-    breakfast: 0,
-    lunch: 0,
-    dinner: 0,
-    snacks: 0,
-  });
+  const [selectedMealIndices, setSelectedMealIndices] = useState<Record<string, number>>({});
 
   // Initialize empty plan if none exists
   useEffect(() => {
-    if (currentPlan.days.every(day => Object.values(day).every(meal => meal === null))) {
+    if (currentPlan.days.every(day => Object.values(day).every(meals => meals.length === 0))) {
       const initialDays = DAYS_OF_WEEK.map(() => ({
-        breakfast: mealPlan.menu.breakfast[0] || null,
-        lunch: mealPlan.menu.lunch[0] || null,
-        dinner: mealPlan.menu.dinner[0] || null,
-        snacks: mealPlan.menu.snacks[0] || null,
+        breakfast: mealPlan.menu.breakfast[0] ? [mealPlan.menu.breakfast[0]] : [],
+        lunch: mealPlan.menu.lunch[0] ? [mealPlan.menu.lunch[0]] : [],
+        dinner: mealPlan.menu.dinner[0] ? [mealPlan.menu.dinner[0]] : [],
+        snacks: mealPlan.menu.snacks[0] ? [mealPlan.menu.snacks[0]] : [],
       }));
 
       setCurrentPlan(prev => ({
@@ -90,17 +85,44 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
         if (index === dayIndex) {
           return {
             ...day,
-            [mealType]: selectedMeal,
+            [mealType]: [...day[mealType], selectedMeal],
           };
         }
         return day;
       }),
       updatedAt: new Date().toISOString(),
     }));
+  };
 
-    setSelectedMealIndices(prev => ({
+  const handleRemoveMeal = (dayIndex: number, mealType: MealType, mealIndex: number) => {
+    setCurrentPlan(prev => ({
       ...prev,
-      [mealType]: mealIndex,
+      days: prev.days.map((day, index) => {
+        if (index === dayIndex) {
+          return {
+            ...day,
+            [mealType]: day[mealType].filter((_, i) => i !== mealIndex),
+          };
+        }
+        return day;
+      }),
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  const handleClearMeals = (dayIndex: number, mealType: MealType) => {
+    setCurrentPlan(prev => ({
+      ...prev,
+      days: prev.days.map((day, index) => {
+        if (index === dayIndex) {
+          return {
+            ...day,
+            [mealType]: [],
+          };
+        }
+        return day;
+      }),
+      updatedAt: new Date().toISOString(),
     }));
   };
 
@@ -121,29 +143,49 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
 
     const meals = currentPlan.days[dayIndex];
     return Object.values(meals).reduce(
-      (totals, meal) => {
-        if (!meal) return totals;
-        return {
-          calories: totals.calories + meal.nutrients.calories,
-          protein: totals.protein + meal.nutrients.protein,
-          fats: totals.fats + meal.nutrients.fats,
-          carbs: totals.carbs + meal.nutrients.carbs,
-        };
+      (totals, mealList) => {
+        return mealList.reduce(
+          (mealTotals, meal) => {
+            if (!meal) return mealTotals;
+            return {
+              calories: mealTotals.calories + meal.nutrients.calories,
+              protein: mealTotals.protein + meal.nutrients.protein,
+              fats: mealTotals.fats + meal.nutrients.fats,
+              carbs: mealTotals.carbs + meal.nutrients.carbs,
+            };
+          },
+          totals
+        );
       },
       { calories: 0, protein: 0, fats: 0, carbs: 0 }
     );
   };
 
-  const navigateMeal = (mealType: MealType, direction: 'prev' | 'next') => {
-    const currentIndex = selectedMealIndices[mealType];
+  const navigateMeal = (dayIndex: number, mealType: MealType, mealIndex: number, direction: 'prev' | 'next') => {
     const meals = mealPlan.menu[mealType];
     if (!meals) return;
 
+    const currentMeal = currentPlan.days[dayIndex][mealType][mealIndex];
+    const currentIndex = meals.findIndex(m => m.name === currentMeal.name);
     const newIndex = direction === 'prev'
       ? (currentIndex - 1 + meals.length) % meals.length
       : (currentIndex + 1) % meals.length;
 
-    handleMealChange(DAYS_OF_WEEK.indexOf(activeDay), mealType, newIndex);
+    setCurrentPlan(prev => ({
+      ...prev,
+      days: prev.days.map((day, index) => {
+        if (index === dayIndex) {
+          return {
+            ...day,
+            [mealType]: day[mealType].map((m, i) => 
+              i === mealIndex ? meals[newIndex] : m
+            ),
+          };
+        }
+        return day;
+      }),
+      updatedAt: new Date().toISOString(),
+    }));
   };
 
   return (
@@ -192,54 +234,83 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                       {MEAL_ICONS[mealType]}
                       <h3 className="text-lg font-medium">{MEAL_TYPE_LABELS[mealType]}</h3>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleMealChange(dayIndex, mealType, 0)}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Добавить
+                    </Button>
+                    {currentPlan.days[dayIndex][mealType].length > 0 && (
                       <Button
                         variant="outline"
-                        size="icon"
-                        onClick={() => navigateMeal(mealType, 'prev')}
-                        className="rounded-full"
+                        size="sm"
+                        onClick={() => handleClearMeals(dayIndex, mealType)}
+                        className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
+                        Очистить
                       </Button>
-                      <span className="text-sm text-gray-600">
-                        {selectedMealIndices[mealType] + 1} / {mealPlan.menu[mealType]?.length || 0}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => navigateMeal(mealType, 'next')}
-                        className="rounded-full"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    )}
                   </div>
 
-                  {currentPlan.days[dayIndex] && currentPlan.days[dayIndex][mealType] && (
-                    <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
-                      <MealCard
-                        meal={currentPlan.days[dayIndex][mealType] || {}}
-                        mealType={mealType}
-                        mealPlanId={mealPlan.id || ''}
-                        mealIndex={selectedMealIndices[mealType]}
-                        onMealUpdated={updatedMeal => {
-                          setCurrentPlan(prev => ({
-                            ...prev,
-                            days: prev.days.map((day, index) => {
-                              if (index === dayIndex) {
-                                return {
-                                  ...day,
-                                  [mealType]: updatedMeal,
-                                };
-                              }
-                              return day;
-                            }),
-                            updatedAt: new Date().toISOString(),
-                          }));
-                        }}
-                      />
-                    </div>
-                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
+                    {currentPlan.days[dayIndex][mealType].map((meal, mealIndex) => (
+                      <div key={mealIndex} className="relative">
+                        <div className="absolute top-2 right-2 z-10 flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => navigateMeal(dayIndex, mealType, mealIndex, 'prev')}
+                            className="rounded-full"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => navigateMeal(dayIndex, mealType, mealIndex, 'next')}
+                            className="rounded-full"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleRemoveMeal(dayIndex, mealType, mealIndex)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <MealCard
+                          meal={meal}
+                          mealType={mealType}
+                          mealPlanId={mealPlan.id || ''}
+                          mealIndex={mealIndex}
+                          onMealUpdated={updatedMeal => {
+                            setCurrentPlan(prev => ({
+                              ...prev,
+                              days: prev.days.map((day, index) => {
+                                if (index === dayIndex) {
+                                  return {
+                                    ...day,
+                                    [mealType]: day[mealType].map((m, i) =>
+                                      i === mealIndex ? updatedMeal : m
+                                    ),
+                                  };
+                                }
+                                return day;
+                              }),
+                              updatedAt: new Date().toISOString(),
+                            }));
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
 
                   {mealType !== 'snacks' && <Separator className="my-6" />}
                 </div>
