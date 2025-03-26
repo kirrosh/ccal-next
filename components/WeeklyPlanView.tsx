@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Coffee, UtensilsCrossed, Moon, Apple } from 'lucide-react';
+import { Coffee, UtensilsCrossed, Moon, Apple, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import MealCard from './MealCard';
 import { Meal, MealType, WeeklyPlan } from '@/types';
@@ -38,6 +31,7 @@ const MEAL_ICONS = {
   dinner: <Moon size={20} />,
   snacks: <Apple size={20} />,
 } as const;
+
 const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, onSave }) => {
   const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<WeeklyPlan>(
@@ -61,6 +55,12 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
 
   const [activeDay, setActiveDay] = useState<string>('День 1');
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedMealIndices, setSelectedMealIndices] = useState<Record<MealType, number>>({
+    breakfast: 0,
+    lunch: 0,
+    dinner: 0,
+    snacks: 0,
+  });
 
   // Initialize empty plan if none exists
   useEffect(() => {
@@ -97,6 +97,11 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
       }),
       updatedAt: new Date().toISOString(),
     }));
+
+    setSelectedMealIndices(prev => ({
+      ...prev,
+      [mealType]: mealIndex,
+    }));
   };
 
   const handleSave = async () => {
@@ -127,6 +132,18 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
       },
       { calories: 0, protein: 0, fats: 0, carbs: 0 }
     );
+  };
+
+  const navigateMeal = (mealType: MealType, direction: 'prev' | 'next') => {
+    const currentIndex = selectedMealIndices[mealType];
+    const meals = mealPlan.menu[mealType];
+    if (!meals) return;
+
+    const newIndex = direction === 'prev'
+      ? (currentIndex - 1 + meals.length) % meals.length
+      : (currentIndex + 1) % meals.length;
+
+    handleMealChange(DAYS_OF_WEEK.indexOf(activeDay), mealType, newIndex);
   };
 
   return (
@@ -171,27 +188,30 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
               {MEAL_TYPES.map(mealType => (
                 <div key={mealType} className="mb-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium">{MEAL_TYPE_LABELS[mealType]}</h3>
-                    <div className="w-64">
-                      <Select
-                        value={String(
-                          mealPlan.menu[mealType]?.findIndex(
-                            (m: Meal) => m.name === currentPlan.days[dayIndex]?.[mealType]?.name
-                          )
-                        )}
-                        onValueChange={value => handleMealChange(dayIndex, mealType, Number(value))}
+                    <div className="flex items-center gap-2">
+                      {MEAL_ICONS[mealType]}
+                      <h3 className="text-lg font-medium">{MEAL_TYPE_LABELS[mealType]}</h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => navigateMeal(mealType, 'prev')}
+                        className="rounded-full"
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {mealPlan.menu[mealType]?.map((meal: Meal, index: number) => (
-                            <SelectItem key={meal.name} value={String(index)}>
-                              {meal.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-sm text-gray-600">
+                        {selectedMealIndices[mealType] + 1} / {mealPlan.menu[mealType]?.length || 0}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => navigateMeal(mealType, 'next')}
+                        className="rounded-full"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
 
@@ -201,11 +221,7 @@ const WeeklyPlanView: React.FC<WeeklyPlanViewProps> = ({ mealPlan, weeklyPlan, o
                         meal={currentPlan.days[dayIndex][mealType] || {}}
                         mealType={mealType}
                         mealPlanId={mealPlan.id || ''}
-                        mealIndex={
-                          mealPlan.menu[mealType]?.findIndex(
-                            (m: Meal) => m.name === currentPlan.days[dayIndex]?.[mealType]?.name
-                          ) || 0
-                        }
+                        mealIndex={selectedMealIndices[mealType]}
                         onMealUpdated={updatedMeal => {
                           setCurrentPlan(prev => ({
                             ...prev,

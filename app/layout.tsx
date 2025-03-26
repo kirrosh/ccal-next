@@ -75,9 +75,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ClerkProvider>
           <api.Provider client={trpcClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
-              <Header />
-              {children}
-              <Toaster />
+              <div className="flex flex-col flex-grow">
+                <Header />
+                {children}
+                <Toaster />
+              </div>
             </QueryClientProvider>
           </api.Provider>
         </ClerkProvider>

@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { router, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { WeeklyPlan } from '@/types';
-import { MealType, Meal } from '@/types/base.types';
+
 
 const mealSchema = z.object({
   name: z.string(),

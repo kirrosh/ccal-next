@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import WeeklyPlanView from '@/components/WeeklyPlanView';
 import { WeeklyPlan } from '@/types';
@@ -68,6 +68,13 @@ export default function WeeklyPlanPage() {
   const deleteWeeklyPlanMutation = api.weekly.deleteWeeklyPlan.useMutation();
   const createWeeklyPlanMutation = api.weekly.createWeeklyPlan.useMutation();
   const updateWeeklyPlanMutation = api.weekly.updateWeeklyPlan.useMutation();
+
+  // Automatically create weekly plan if it doesn't exist
+  useEffect(() => {
+    if (!weeklyPlan && mealPlan && !weeklyPlanLoading) {
+      handleCreateWeeklyPlan();
+    }
+  }, [mealPlan, weeklyPlan, weeklyPlanLoading]);
 
   const handleDeleteWeeklyPlan = async () => {
     if (!weeklyPlan) return;
@@ -210,37 +217,56 @@ export default function WeeklyPlanPage() {
   };
 
   if (mealPlanLoading || weeklyPlanLoading) {
-    return <div>Загрузка...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (error || mealPlanError) {
-    return <div className="text-red-500">{error || 'Ошибка при загрузке данных'}</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-red-500 text-center">
+          <p className="text-xl font-semibold mb-2">Ошибка</p>
+          <p>{error || 'Ошибка при загрузке данных'}</p>
+        </div>
+      </div>
+    );
   }
 
   if (!mealPlan) {
-    return <div>Рацион не найден</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-xl font-semibold mb-2">Рацион не найден</p>
+          <p className="text-gray-600">Пожалуйста, проверьте URL и попробуйте снова</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Недельный план питания</h1>
-        <div className="space-x-4">
-          {weeklyPlan ? (
-            <button
-              onClick={handleDeleteWeeklyPlan}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-              Удалить план
-            </button>
-          ) : (
-            <button
-              onClick={handleCreateWeeklyPlan}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-            >
-              Создать недельный план
-            </button>
-          )}
+      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Недельный план питания</h1>
+            <p className="text-gray-600">
+              Период: {new Date(weeklyPlan?.startDate || '').toLocaleDateString()} -{' '}
+              {new Date(weeklyPlan?.endDate || '').toLocaleDateString()}
+            </p>
+          </div>
+          <div className="flex gap-4">
+            {weeklyPlan && (
+              <button
+                onClick={handleDeleteWeeklyPlan}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Удалить план
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -251,10 +277,11 @@ export default function WeeklyPlanPage() {
           onSave={handleUpdateWeeklyPlan}
         />
       ) : (
-        <div className="text-center py-8">
-          <p>Недельный план еще не создан</p>
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-xl font-semibold mb-2">Создание недельного плана</p>
           <p className="text-gray-600">
-            Создайте недельный план, чтобы начать планирование питания
+            Пожалуйста, подождите, пока мы создаем ваш недельный план питания...
           </p>
         </div>
       )}
