@@ -72,12 +72,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={cn(inter.className, 'flex flex-col min-h-screen')}>
-        <ClerkProvider publishableKey={'pk_test_cmVzb2x2ZWQtbGl6YXJkLTgxLmNsZXJrLmFjY291bnRzLmRldiQ'}>
+        <ClerkProvider publishableKey={'pk_test_cmVzb2x2ZWQtbGl6YXJkLTgxLmNsZXJrLmFjY291bnRzLmRldiQ'}  >
           <api.Provider client={trpcClient} queryClient={queryClient}>
             <QueryClientProvider client={queryClient}>
               <div className="flex flex-col flex-grow">
                 <Header />
-                {children}
+             
+                  {children}
                 <Toaster />
               </div>
             </QueryClientProvider>
@@ -94,3 +95,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
+
+const SessionAwaiter = ({ children }: { children: React.ReactNode }) => {
+  const { isSignedIn } = useUser();
+
+  return <div>{isSignedIn ? children : null}</div>;
+};
+
